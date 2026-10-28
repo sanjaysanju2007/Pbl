@@ -1,4 +1,4 @@
-const FAQ = require('../models/FAQ');
+const FAQ = require('../database/models/FAQ');
 
 // @desc    Get published FAQs (public)
 // @route   GET /api/faqs

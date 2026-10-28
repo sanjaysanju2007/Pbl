@@ -1,4 +1,4 @@
-const PageContent = require('../models/PageContent');
+const PageContent = require('../database/models/PageContent');
 
 // @desc    Get page content by slug (public)
 // @route   GET /api/content/:pageSlug

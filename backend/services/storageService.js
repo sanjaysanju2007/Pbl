@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 
-const dataDir = path.join(__dirname, '..', 'data');
+const dataDir = path.join(__dirname, '..', 'database', 'fallback');
 const dataFilePath = path.join(dataDir, 'admissions.json');
 
 // Ensure data directory exists

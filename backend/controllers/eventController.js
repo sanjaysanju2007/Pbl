@@ -1,4 +1,4 @@
-const Event = require('../models/Event');
+const Event = require('../database/models/Event');
 
 // @desc    Get published events (public)
 // @route   GET /api/events

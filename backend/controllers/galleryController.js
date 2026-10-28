@@ -1,4 +1,4 @@
-const GalleryItem = require('../models/GalleryItem');
+const GalleryItem = require('../database/models/GalleryItem');
 
 // @desc    Get all gallery items (public)
 // @route   GET /api/gallery

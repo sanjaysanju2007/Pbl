@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const AdminUser = require('../models/AdminUser');
+const AdminUser = require('../database/models/AdminUser');
 
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {

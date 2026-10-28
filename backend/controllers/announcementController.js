@@ -1,4 +1,4 @@
-const Announcement = require('../models/Announcement');
+const Announcement = require('../database/models/Announcement');
 
 // @desc    Get published announcements (public)
 // @route   GET /api/announcements

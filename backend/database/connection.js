@@ -20,7 +20,7 @@ const connectDB = async () => {
   } catch (error) {
     console.warn(`⚠️  MongoDB Connection Notice: ${error.message}`);
     console.warn(`   Target URI: ${uri}`);
-    console.warn(`   Tip: To enable MongoDB locally, start the mongod service, or set MONGO_URI in server/.env to a free MongoDB Atlas connection string.`);
+    console.warn(`   Tip: To enable MongoDB locally, start the mongod service, or set MONGO_URI in backend/.env to a free MongoDB Atlas connection string.`);
     console.warn(`   The server will remain online and automatically attempt reconnection every 15 seconds.\n`);
 
     if (!retryTimer) {

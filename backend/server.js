@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const connectDB = require('./database/connection');
 
 // Load env vars
 dotenv.config();
@@ -36,7 +36,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../storage/uploads')));
 
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -77,9 +77,9 @@ app.get('/api/health', (req, res) => {
 
 // Serve React build in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
+    res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
   });
 }
 

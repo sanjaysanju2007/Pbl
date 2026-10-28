@@ -1,4 +1,4 @@
-const Testimonial = require('../models/Testimonial');
+const Testimonial = require('../database/models/Testimonial');
 
 // @desc    Get approved testimonials (public)
 // @route   GET /api/testimonials

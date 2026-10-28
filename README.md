@@ -20,8 +20,8 @@ npm run install-all
 
 ### 2. Configure environment
 ```bash
-cp server/.env.example server/.env
-# Edit server/.env with your MongoDB URI, JWT secret, and SMTP credentials
+cp backend/.env.example backend/.env
+# Edit backend/.env with your MongoDB URI, JWT secret, and SMTP credentials
 ```
 
 ### 3. Seed admin user
@@ -39,23 +39,29 @@ This starts both the Express backend (port 5000) and React dev server (port 5173
 ## Project Structure
 
 ```
-├── client/          # React frontend (Vite)
+├── frontend/        # React frontend (Vite)
 │   ├── src/
 │   │   ├── components/
 │   │   ├── context/
 │   │   ├── pages/
 │   │   └── App.jsx
 │   └── package.json
-├── server/          # Express backend
-│   ├── config/
+├── backend/         # Express REST API
 │   ├── controllers/
 │   ├── middleware/
-│   ├── models/
 │   ├── routes/
 │   ├── services/
-│   ├── utils/
 │   └── server.js
-└── package.json     # Root scripts
+├── database/        # Database models, connection, and seeds
+│   ├── models/
+│   ├── seeds/
+│   ├── fallback/
+│   └── connection.js
+├── storage/         # Stateful user-uploaded files
+│   └── uploads/
+│       ├── documents/
+│       └── gallery/
+└── package.json     # Root scripts & orchestration
 ```
 
 ## Default Admin Login
@@ -66,4 +72,4 @@ This starts both the Express backend (port 5000) and React dev server (port 5173
 
 ## Environment Variables
 
-See `server/.env.example` for all required configuration.
+See `backend/.env.example` for all required configuration.

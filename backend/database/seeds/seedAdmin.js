@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const AdminUser = require('../models/AdminUser');
 
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const seedAdmin = async () => {
   try {

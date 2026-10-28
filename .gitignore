@@ -6,3 +6,7 @@ build/
 .DS_Store
 uploads/*
 !uploads/.gitkeep
+storage/uploads/documents/*
+!storage/uploads/documents/.gitkeep
+storage/uploads/gallery/*
+!storage/uploads/gallery/.gitkeep

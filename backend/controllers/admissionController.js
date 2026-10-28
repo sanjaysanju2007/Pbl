@@ -1,4 +1,4 @@
-const Admission = require('../models/Admission');
+const Admission = require('../database/models/Admission');
 const { sendAdmissionAcknowledgment, sendAdminNotification } = require('../services/emailService');
 const storageService = require('../services/storageService');
 

@@ -177,6 +177,5 @@ admissionSchema.pre('save', function (next) {
 admissionSchema.index({ status: 1, createdAt: -1 });
 admissionSchema.index({ guardianEmail: 1 });
 admissionSchema.index({ guardianPhone: 1 });
-admissionSchema.index({ applicationNumber: 1 });
 
 module.exports = mongoose.model('Admission', admissionSchema);

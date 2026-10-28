@@ -1,4 +1,4 @@
-const Enquiry = require('../models/Enquiry');
+const Enquiry = require('../database/models/Enquiry');
 const { sendEnquiryConfirmation, sendAdminNotification } = require('../services/emailService');
 
 // @desc    Submit enquiry (public)

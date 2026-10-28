@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const AdminUser = require('../models/AdminUser');
+const AdminUser = require('../database/models/AdminUser');
 
 // Generate JWT token
 const generateToken = (id) => {
