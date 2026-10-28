@@ -14,7 +14,12 @@ import {
   FiShield,
   FiHeart,
   FiHelpCircle,
-  FiUser
+  FiUser,
+  FiStar,
+  FiClock,
+  FiXCircle,
+  FiClipboard,
+  FiInbox
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import API from '../api';
@@ -107,15 +112,15 @@ const Login = () => {
     }
   };
 
-  const getStatusLabel = (status) => {
+  const getStatusBadgeContent = (status) => {
     switch (status) {
-      case 'approved': return '🎉 Approved / Admission Offered';
-      case 'shortlisted': return '⭐ Shortlisted for Mentor Interaction';
+      case 'approved': return <><FiCheckCircle size={13} aria-hidden="true" /> Approved / Admission Offered</>;
+      case 'shortlisted': return <><FiStar size={13} aria-hidden="true" /> Shortlisted for Mentor Interaction</>;
       case 'under_review':
-      case 'reviewed': return '⏳ Under Committee Review';
-      case 'rejected': return '❌ Not Accepted';
-      case 'waitlisted': return '📋 Placed on Waitlist';
-      default: return '📥 Application Submitted';
+      case 'reviewed': return <><FiClock size={13} aria-hidden="true" /> Under Committee Review</>;
+      case 'rejected': return <><FiXCircle size={13} aria-hidden="true" /> Not Accepted</>;
+      case 'waitlisted': return <><FiClipboard size={13} aria-hidden="true" /> Placed on Waitlist</>;
+      default: return <><FiInbox size={13} aria-hidden="true" /> Application Submitted</>;
     }
   };
 
@@ -149,7 +154,7 @@ const Login = () => {
                 </Link>
 
                 <div className="login-card__headline">
-                  <h3>Where Every Child Blossoms With Joy 🌈</h3>
+                  <h3>Where Every Child Blossoms With Joy</h3>
                   <p>
                     Track your child's admission journey or manage our happy campus community with confidence and care.
                   </p>
@@ -280,8 +285,8 @@ const Login = () => {
                             <span className="login-track-card__id">{trackResult.applicationNumber}</span>
                             <h4 className="login-track-card__name">{trackResult.childName}</h4>
                           </div>
-                          <span className={`login-badge ${getStatusBadgeClass(trackResult.status)}`}>
-                            {getStatusLabel(trackResult.status)}
+                          <span className={`login-badge ${getStatusBadgeClass(trackResult.status)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                            {getStatusBadgeContent(trackResult.status)}
                           </span>
                         </div>
 

@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiEye, FiTarget, FiHeart, FiStar, FiUsers, FiBookOpen, FiSun, FiFeather } from 'react-icons/fi';
+import { FiEye, FiTarget, FiHeart, FiStar, FiUsers, FiBookOpen, FiSun, FiFeather, FiCompass, FiAward } from 'react-icons/fi';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -25,7 +25,7 @@ const VisionMission = () => {
       <section className="page-hero page-hero--vision">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">✨ Our Guiding Light</span>
+            <span className="section-header__badge"><FiCompass aria-hidden="true" /> Our Guiding Light</span>
             <h1>Vision, Mission & Core Values</h1>
             <p>The principles that shape everything we do for your child.</p>
           </motion.div>
@@ -58,7 +58,7 @@ const VisionMission = () => {
       <section className="section section--alt">
         <div className="container">
           <div className="section-header">
-            <span className="section-header__badge">💎 What We Stand For</span>
+            <span className="section-header__badge"><FiAward aria-hidden="true" /> What We Stand For</span>
             <h2 className="section-header__title">Our Core Values</h2>
             <p className="section-header__subtitle">These values are woven into every classroom, every lesson, and every smile at Chittukurumbakam.</p>
           </div>

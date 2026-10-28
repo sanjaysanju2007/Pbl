@@ -9,7 +9,10 @@ import {
   FiMessageSquare,
   FiArrowRight,
   FiDownload,
-  FiPlusCircle
+  FiPlusCircle,
+  FiBarChart2,
+  FiZap,
+  FiInbox
 } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
@@ -132,7 +135,9 @@ const Dashboard = () => {
     <div className="admin-page">
       <div className="admin-page-head">
         <div>
-          <h2>📊 Admissions & School Overview</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FiBarChart2 style={{ color: 'var(--color-primary)' }} /> Admissions & School Overview
+          </h2>
           <p>Real-time metrics calculated directly from database records.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -174,7 +179,9 @@ const Dashboard = () => {
 
       {/* Quick Action Shortcuts */}
       <div className="admin-quick-actions" style={{ margin: '28px 0' }}>
-        <h3 style={{ marginBottom: '14px', fontSize: '1.1rem' }}>⚡ Quick Management Navigation</h3>
+        <h3 style={{ marginBottom: '14px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FiZap style={{ color: '#f59e0b' }} /> Quick Management Navigation
+        </h3>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <Link to="/admin/admissions" className="btn btn--primary btn--sm">
             <FiUsers /> Review Admissions
@@ -194,7 +201,9 @@ const Dashboard = () => {
       {/* Recent Submissions Feed */}
       <div className="admin-card-section" style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
-          <h3 style={{ margin: 0, fontSize: '1.15rem' }}>📥 Recent Admission Applications</h3>
+          <h3 style={{ margin: 0, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FiInbox style={{ color: 'var(--color-primary)' }} /> Recent Admission Applications
+          </h3>
           <Link to="/admin/admissions" style={{ fontSize: '0.86rem', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
             View All Applications →
           </Link>

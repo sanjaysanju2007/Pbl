@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { FiSend, FiCheck } from 'react-icons/fi';
+import { FiSend, FiCheck, FiMessageSquare } from 'react-icons/fi';
 import API from '../api';
 import './PageStyles.css';
 
@@ -49,7 +49,7 @@ const Enquiry = () => {
           <div className="container container--narrow text-center">
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="success-card">
               <span className="success-card__icon"><FiCheck size={48} /></span>
-              <h2>Thank You for Your Enquiry! 💌</h2>
+              <h2>Thank You for Your Enquiry!</h2>
               <p>We've received your message and will get back to you within 24-48 hours. A confirmation email has been sent to <strong>{form.email}</strong>.</p>
             </motion.div>
           </div>
@@ -68,7 +68,7 @@ const Enquiry = () => {
       <section className="page-hero page-hero--enquiry">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">💬 Enquire</span>
+            <span className="section-header__badge"><FiMessageSquare aria-hidden="true" /> Enquire</span>
             <h1>We'd Love to Hear from You</h1>
             <p>Have questions about our programs, admissions, or facilities? Drop us a message!</p>
           </motion.div>
@@ -78,7 +78,9 @@ const Enquiry = () => {
       <section className="section">
         <div className="container container--narrow">
           <form onSubmit={handleSubmit} className="enquiry-form card" style={{ padding: '40px' }}>
-            <h3 style={{ marginBottom: '24px' }}>📩 Send Us Your Enquiry</h3>
+            <h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FiSend aria-hidden="true" /> Send Us Your Enquiry
+            </h3>
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Your Name <span className="required">*</span></label>

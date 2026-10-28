@@ -25,7 +25,7 @@ const Safety = () => {
       <section className="page-hero page-hero--safety">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">🛡️ Safety & Security</span>
+            <span className="section-header__badge"><FiShield aria-hidden="true" /> Safety & Security</span>
             <h1>Your Child's Safety — Our Highest Priority</h1>
             <p>Comprehensive safety measures so you can have complete peace of mind.</p>
           </motion.div>

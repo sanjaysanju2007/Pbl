@@ -97,6 +97,8 @@
 .navbar__sun-icon {
   font-size: 1.05rem;
   display: inline-block;
+  vertical-align: middle;
+  color: #f59e0b;
   animation: sunGlow 3s ease-in-out infinite alternate;
 }
 

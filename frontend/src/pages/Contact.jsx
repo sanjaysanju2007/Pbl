@@ -15,14 +15,14 @@ const contactCards = [
   {
     icon: <FiMapPin size={24} />,
     color: 'blue',
-    title: '📍 Visit Us',
+    title: 'Visit Us',
     content: ADDRESS,
     action: { href: MAPS_LINK, label: 'Get Directions', external: true },
   },
   {
     icon: <FiPhone size={24} />,
     color: 'green',
-    title: '📞 Call Us',
+    title: 'Call Us',
     lines: [
       { href: 'tel:+919952285838', label: '+91 99522 85838' },
     ],
@@ -30,7 +30,7 @@ const contactCards = [
   {
     icon: <FiMail size={24} />,
     color: 'coral',
-    title: '✉️ Email Us',
+    title: 'Email Us',
     lines: [
       { href: 'mailto:info@chittukurumbakam.com', label: 'info@chittukurumbakam.com' },
       { href: 'mailto:admissions@chittukurumbakam.com', label: 'admissions@...' },
@@ -39,7 +39,7 @@ const contactCards = [
   {
     icon: <FiClock size={24} />,
     color: 'yellow',
-    title: '🕘 Office Hours',
+    title: 'Office Hours',
     lines: [
       { label: 'Mon – Fri: 8:30 AM – 4:30 PM' },
       { label: 'Saturday: 9:00 AM – 1:00 PM' },
@@ -59,7 +59,7 @@ const Contact = () => {
       <section className="page-hero page-hero--contact">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">📍 Contact Us</span>
+            <span className="section-header__badge"><FiMapPin /> Contact Us</span>
             <h1>We're Here for You</h1>
             <p>Visit us in Tiruppur, Tamil Nadu — we'd love to show you around our campus!</p>
           </motion.div>
@@ -134,7 +134,7 @@ const Contact = () => {
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={2}>
               <div className="contact-map-section">
                 <div className="contact-map-header">
-                  <h3>📍 Find Us on the Map</h3>
+                  <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiMapPin style={{ color: 'var(--color-primary)' }} /> Find Us on the Map</h3>
                   <a
                     href={MAPS_LINK}
                     target="_blank"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPhone, FiMail, FiMapPin, FiClock, FiSend, FiArrowRight } from 'react-icons/fi';
+import { FiPhone, FiMail, FiMapPin, FiClock, FiSend, FiArrowRight, FiSun, FiCheckCircle, FiHeart } from 'react-icons/fi';
 import { FaFacebookF, FaInstagram, FaYoutube, FaWhatsapp } from 'react-icons/fa';
 import './Footer.css';
 
@@ -33,7 +33,7 @@ const Footer = () => {
               <div className="footer__logo">
                 <img src="/logo.jpg" alt="Chittukurumbakam Play School" className="footer__logo-img" />
                 <div className="footer__logo-text">
-                  <span className="footer__logo-name">Chittukurumbakam ☀️</span>
+                  <span className="footer__logo-name">Chittukurumbakam <FiSun aria-hidden="true" style={{ color: '#f59e0b', verticalAlign: 'middle', marginLeft: '4px' }} /></span>
                   <span className="footer__logo-sub">Sunny Beginnings</span>
                 </div>
               </div>
@@ -89,12 +89,12 @@ const Footer = () => {
               <h4 className="footer__heading">Programs</h4>
               <ul className="footer__list">
                 {[
-                  { label: '🧸 Playgroup (1.5–2.5 yrs)' },
-                  { label: '🎨 Nursery (2.5–3.5 yrs)' },
-                  { label: '📚 LKG (3.5–4.5 yrs)' },
-                  { label: '🎓 UKG (4.5–5.5 yrs)' },
-                  { label: '🧩 Curriculum', to: '/curriculum' },
-                  { label: '❓ FAQs', to: '/faqs' },
+                  { label: 'Playgroup (1.5–2.5 yrs)' },
+                  { label: 'Nursery (2.5–3.5 yrs)' },
+                  { label: 'LKG (3.5–4.5 yrs)' },
+                  { label: 'UKG (4.5–5.5 yrs)' },
+                  { label: 'Curriculum', to: '/curriculum' },
+                  { label: 'FAQs', to: '/faqs' },
                 ].map((item, i) => (
                   <li key={i}>
                     {item.to
@@ -128,11 +128,11 @@ const Footer = () => {
 
               {/* Newsletter */}
               <div className="footer__newsletter">
-                <h5 className="footer__newsletter-title">📬 Stay Updated</h5>
+                <h5 className="footer__newsletter-title"><FiMail style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Stay Updated</h5>
                 <p className="footer__newsletter-text">Get updates on events and admissions.</p>
                 {subscribed ? (
                   <div className="footer__newsletter-success">
-                    ✅ Subscribed! Thank you 🎉
+                    <FiCheckCircle style={{ color: 'var(--color-success)', marginRight: '6px', verticalAlign: 'middle' }} /> Subscribed! Thank you
                   </div>
                 ) : (
                   <form onSubmit={handleSubscribe} className="footer__newsletter-form">
@@ -158,7 +158,7 @@ const Footer = () => {
       <div className="footer__bottom">
         <div className="container">
           <p>© {new Date().getFullYear()} Chittukurumbakam Play School. All rights reserved.</p>
-          <p className="footer__bottom-tagline">Made with ❤️ for little learners 🌈</p>
+          <p className="footer__bottom-tagline">Made with <FiHeart style={{ color: '#ef4444', verticalAlign: 'middle', margin: '0 2px' }} /> for little learners</p>
         </div>
       </div>
     </footer>

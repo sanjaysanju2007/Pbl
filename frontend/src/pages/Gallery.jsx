@@ -1,22 +1,33 @@
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiX, FiChevronLeft, FiChevronRight, FiMaximize2 } from 'react-icons/fi';
+import { 
+  FiX, 
+  FiChevronLeft, 
+  FiChevronRight, 
+  FiMaximize2, 
+  FiImage, 
+  FiCamera, 
+  FiGrid, 
+  FiCalendar, 
+  FiBookOpen, 
+  FiActivity 
+} from 'react-icons/fi';
 import API from '../api';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4 } }) };
 
 const defaultImages = [
-  { _id: '1', title: 'Annual Day Celebration', category: 'Events', type: 'photo', url: '', emoji: '🎉', color: '#e3f2fd' },
-  { _id: '2', title: 'Art & Craft Workshop', category: 'Classroom', type: 'photo', url: '', emoji: '🎨', color: '#fce4ec' },
-  { _id: '3', title: 'Sports Day Fun', category: 'Events', type: 'photo', url: '', emoji: '🏅', color: '#fff8e1' },
-  { _id: '4', title: 'Nature Walk', category: 'Activities', type: 'photo', url: '', emoji: '🌿', color: '#e8f5e9' },
-  { _id: '5', title: 'Music Class', category: 'Classroom', type: 'photo', url: '', emoji: '🎵', color: '#f3e5f5' },
-  { _id: '6', title: 'Diwali Celebration', category: 'Events', type: 'photo', url: '', emoji: '🪔', color: '#fff3e0' },
-  { _id: '7', title: 'Outdoor Play Time', category: 'Activities', type: 'photo', url: '', emoji: '⛹️', color: '#e0f7fa' },
-  { _id: '8', title: 'Story Time Session', category: 'Classroom', type: 'photo', url: '', emoji: '📖', color: '#fce4ec' },
-  { _id: '9', title: 'Graduation Day', category: 'Events', type: 'photo', url: '', emoji: '🎓', color: '#e8eaf6' },
+  { _id: '1', title: 'Annual Day Celebration', category: 'Events', type: 'photo', url: '', color: '#e3f2fd' },
+  { _id: '2', title: 'Art & Craft Workshop', category: 'Classroom', type: 'photo', url: '', color: '#fce4ec' },
+  { _id: '3', title: 'Sports Day Fun', category: 'Events', type: 'photo', url: '', color: '#fff8e1' },
+  { _id: '4', title: 'Nature Walk', category: 'Activities', type: 'photo', url: '', color: '#e8f5e9' },
+  { _id: '5', title: 'Music Class', category: 'Classroom', type: 'photo', url: '', color: '#f3e5f5' },
+  { _id: '6', title: 'Diwali Celebration', category: 'Events', type: 'photo', url: '', color: '#fff3e0' },
+  { _id: '7', title: 'Outdoor Play Time', category: 'Activities', type: 'photo', url: '', color: '#e0f7fa' },
+  { _id: '8', title: 'Story Time Session', category: 'Classroom', type: 'photo', url: '', color: '#fce4ec' },
+  { _id: '9', title: 'Graduation Day', category: 'Events', type: 'photo', url: '', color: '#e8eaf6' },
 ];
 
 const Gallery = () => {
@@ -51,7 +62,12 @@ const Gallery = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, [lightboxIdx, filtered.length]);
 
-  const catEmojis = { All: '🌟', Events: '🎉', Classroom: '📚', Activities: '🏃' };
+  const catIcons = { 
+    All: <FiGrid aria-hidden="true" />, 
+    Events: <FiCalendar aria-hidden="true" />, 
+    Classroom: <FiBookOpen aria-hidden="true" />, 
+    Activities: <FiActivity aria-hidden="true" /> 
+  };
 
   return (
     <>
@@ -63,7 +79,7 @@ const Gallery = () => {
       <section className="page-hero page-hero--gallery">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">📸 Gallery</span>
+            <span className="section-header__badge"><FiCamera aria-hidden="true" /> Gallery</span>
             <h1>Moments That Make Us Smile</h1>
             <p>A glimpse into the joy, creativity, and celebrations at our school.</p>
           </motion.div>
@@ -80,8 +96,9 @@ const Gallery = () => {
                 onClick={() => setActiveCategory(cat)}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                {catEmojis[cat] || '📌'} {cat}
+                {catIcons[cat] || <FiImage aria-hidden="true" />} {cat}
                 <span className="gallery-filter__count">
                   {cat === 'All' ? items.length : items.filter(i => i.category === cat).length}
                 </span>
@@ -107,7 +124,9 @@ const Gallery = () => {
                     <img src={item.url} alt={item.title} className="gallery-item__img" loading="lazy" />
                   ) : (
                     <div className="gallery-item__placeholder" style={{ background: item.color || 'linear-gradient(135deg, #e3f2fd, #e8f5e9)' }}>
-                      <span className="gallery-item__placeholder-emoji">{item.emoji || '📷'}</span>
+                      <span className="gallery-item__placeholder-emoji">
+                        <FiImage size={36} aria-hidden="true" style={{ color: 'var(--neutral-500)' }} />
+                      </span>
                     </div>
                   )}
                   <div className="gallery-item__overlay">
@@ -126,7 +145,7 @@ const Gallery = () => {
 
           {filtered.length === 0 && (
             <div className="empty-state">
-              <span className="empty-state__emoji">🖼️</span>
+              <span className="empty-state__emoji"><FiImage size={48} aria-hidden="true" style={{ color: 'var(--neutral-400)' }} /></span>
               <h3>No photos in this category yet</h3>
               <p>Check back soon for new memories!</p>
             </div>
@@ -172,7 +191,7 @@ const Gallery = () => {
                   className="gallery-item__placeholder lightbox__placeholder"
                   style={{ background: filtered[lightboxIdx]?.color }}
                 >
-                  <span>{filtered[lightboxIdx]?.emoji || '📷'}</span>
+                  <span><FiImage size={64} aria-hidden="true" style={{ color: 'var(--neutral-500)' }} /></span>
                 </div>
               )}
               <div className="lightbox__info">

@@ -1,7 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiChevronDown, FiSearch } from 'react-icons/fi';
+import { 
+  FiChevronDown, 
+  FiSearch, 
+  FiHelpCircle, 
+  FiGrid, 
+  FiFileText, 
+  FiClock, 
+  FiShield, 
+  FiPhone, 
+  FiMail 
+} from 'react-icons/fi';
 import API from '../api';
 import './PageStyles.css';
 
@@ -21,11 +31,11 @@ const defaultFAQs = [
 ];
 
 const categoryConfig = {
-  all: { emoji: '🌟', label: 'All Questions' },
-  admissions: { emoji: '📝', label: 'Admissions' },
-  timings: { emoji: '🕐', label: 'Timings' },
-  policies: { emoji: '📋', label: 'Policies' },
-  general: { emoji: '💡', label: 'General' },
+  all: { icon: <FiGrid aria-hidden="true" />, label: 'All Questions' },
+  admissions: { icon: <FiFileText aria-hidden="true" />, label: 'Admissions' },
+  timings: { icon: <FiClock aria-hidden="true" />, label: 'Timings' },
+  policies: { icon: <FiShield aria-hidden="true" />, label: 'Policies' },
+  general: { icon: <FiHelpCircle aria-hidden="true" />, label: 'General' },
 };
 
 const FAQs = () => {
@@ -64,7 +74,7 @@ const FAQs = () => {
       <section className="page-hero page-hero--faqs">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">❓ FAQs</span>
+            <span className="section-header__badge"><FiHelpCircle aria-hidden="true" /> FAQs</span>
             <h1>Frequently Asked Questions</h1>
             <p>Quick answers to help you make an informed decision for your child.</p>
           </motion.div>
@@ -89,7 +99,7 @@ const FAQs = () => {
           {/* Category Filters */}
           <div className="faq-categories">
             {categories.map(cat => {
-              const cfg = categoryConfig[cat] || { emoji: '📌', label: cat };
+              const cfg = categoryConfig[cat] || { icon: <FiHelpCircle aria-hidden="true" />, label: cat };
               const count = cat === 'all' ? faqs.length : faqs.filter(f => f.category === cat).length;
               return (
                 <button
@@ -97,7 +107,7 @@ const FAQs = () => {
                   className={`faq-cat-btn ${activeCategory === cat ? 'faq-cat-btn--active' : ''}`}
                   onClick={() => setActiveCategory(cat)}
                 >
-                  <span className="faq-cat-btn__emoji">{cfg.emoji}</span>
+                  <span className="faq-cat-btn__emoji">{cfg.icon}</span>
                   <span>{cfg.label}</span>
                   <span className="faq-cat-btn__count">{count}</span>
                 </button>
@@ -120,7 +130,7 @@ const FAQs = () => {
             <AnimatePresence>
               {filtered.length === 0 ? (
                 <motion.div className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <span className="empty-state__emoji">🔍</span>
+                  <span className="empty-state__emoji"><FiSearch size={48} aria-hidden="true" style={{ color: 'var(--neutral-400)' }} /></span>
                   <h3>No FAQs Found</h3>
                   <p>Try a different search term or select a different category.</p>
                 </motion.div>
@@ -155,8 +165,8 @@ const FAQs = () => {
                           <div className="faq-item__answer-inner">
                             <p>{faq.answer}</p>
                             {faq.category && (
-                              <span className="faq-item__category-tag">
-                                {categoryConfig[faq.category]?.emoji} {categoryConfig[faq.category]?.label || faq.category}
+                              <span className="faq-item__category-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                {categoryConfig[faq.category]?.icon} {categoryConfig[faq.category]?.label || faq.category}
                               </span>
                             )}
                           </div>
@@ -172,11 +182,11 @@ const FAQs = () => {
           {/* CTA */}
           <div className="faq-cta card text-center" style={{ marginTop: 'var(--space-2xl)' }}>
             <p style={{ marginBottom: 'var(--space-md)', maxWidth: 'none', fontWeight: 600 }}>
-              🤔 Didn't find your answer? We're happy to help!
+              Didn't find your answer? We're happy to help!
             </p>
             <div className="flex-center gap-md flex-wrap">
-              <a href="tel:+919952285838" className="btn btn--primary">📞 Call Us</a>
-              <a href="mailto:info@chittukurumbakam.com" className="btn btn--outline">✉️ Email Us</a>
+              <a href="tel:+919952285838" className="btn btn--primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FiPhone aria-hidden="true" /> Call Us</a>
+              <a href="mailto:info@chittukurumbakam.com" className="btn btn--outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FiMail aria-hidden="true" /> Email Us</a>
             </div>
           </div>
         </div>

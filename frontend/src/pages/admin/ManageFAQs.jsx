@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiEdit, FiHelpCircle } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
 
@@ -26,7 +26,7 @@ const ManageFAQs = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>❓ Manage FAQs</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiHelpCircle style={{ color: 'var(--color-primary)' }} /> Manage FAQs</h2>
         <button onClick={() => { setShowForm(!showForm); setEditId(null); setForm({ question: '', answer: '', category: 'general', order: 0, isPublished: true }); }} className="btn btn--primary btn--sm"><FiPlus /> New</button>
       </div>
 

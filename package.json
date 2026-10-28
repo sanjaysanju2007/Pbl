@@ -10,6 +10,7 @@
     "frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "seed": "cd backend && node database/seeds/seedAdmin.js",
+    "seed:firebase": "cd backend && node database/seeds/seedFirebase.js",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "devDependencies": {

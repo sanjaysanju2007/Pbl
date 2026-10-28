@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiImage } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
 
@@ -27,7 +27,7 @@ const ManageGallery = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>📸 Manage Gallery</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiImage style={{ color: 'var(--color-primary)' }} /> Manage Gallery</h2>
         <button onClick={() => setShowForm(!showForm)} className="btn btn--primary btn--sm"><FiPlus /> Add Item</button>
       </div>
 

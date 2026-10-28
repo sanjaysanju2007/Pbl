@@ -764,9 +764,17 @@
 }
 
 .program-card__emoji {
-  font-size: 2.5rem;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: rgba(31, 122, 184, 0.08);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
   margin-bottom: var(--space-md);
-  display: block;
+  border: 1px solid rgba(31, 122, 184, 0.15);
 }
 
 .program-card__name {
@@ -880,9 +888,17 @@
 }
 
 .stat-card__emoji {
-  font-size: 2.2rem;
-  display: block;
-  margin-bottom: var(--space-sm);
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-soft);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto var(--space-sm);
+  border: 1px solid var(--color-border);
 }
 
 .stat-card__number {

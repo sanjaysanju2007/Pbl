@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiPlus, FiTrash2, FiEdit } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiEdit, FiCalendar } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
 
@@ -26,7 +26,7 @@ const ManageEvents = () => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>🎪 Manage Events</h2>
+        <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><FiCalendar style={{ color: 'var(--color-primary)' }} /> Manage Events</h2>
         <button onClick={() => { setShowForm(!showForm); setEditId(null); setForm({ title: '', description: '', date: '', type: 'celebration', isPublished: true }); }} className="btn btn--primary btn--sm"><FiPlus /> New</button>
       </div>
 

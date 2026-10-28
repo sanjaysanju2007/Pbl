@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiStar } from 'react-icons/fi';
+import { FiStar, FiMessageSquare } from 'react-icons/fi';
 import API from '../api';
 import './PageStyles.css';
 
@@ -35,7 +35,7 @@ const Testimonials = () => {
       <section className="page-hero page-hero--testimonials">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">💬 Testimonials</span>
+            <span className="section-header__badge"><FiMessageSquare aria-hidden="true" /> Testimonials</span>
             <h1>What Parents Say About Us</h1>
             <p>Real stories from real families — hear why parents love Chittukurumbakam.</p>
           </motion.div>
@@ -47,12 +47,21 @@ const Testimonials = () => {
           <div className="grid grid-2 stagger">
             {testimonials.map((t, i) => (
               <motion.div key={t._id} className="card testimonial-card" initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}>
-                <div className="testimonial-card__stars">
-                  {[...Array(t.rating || 5)].map((_, j) => <FiStar key={j} className="star-filled" />)}
+                <div className="testimonial-card__stars" aria-label={`${t.rating || 5} out of 5 stars`}>
+                  {[...Array(5)].map((_, j) => (
+                    <FiStar
+                      key={j}
+                      className={j < (t.rating || 5) ? 'star-filled' : 'star-empty'}
+                      style={j < (t.rating || 5) ? { color: '#f59e0b', fill: '#f59e0b' } : { color: '#cbd5e1' }}
+                      aria-hidden="true"
+                    />
+                  ))}
                 </div>
                 <p className="testimonial-card__message">"{t.message}"</p>
                 <div className="testimonial-card__author">
-                  <div className="testimonial-card__avatar">{t.parentName.charAt(0)}</div>
+                  <div className="testimonial-card__avatar" aria-hidden="true">
+                    {t.parentName.charAt(0)}
+                  </div>
                   <div>
                     <strong>{t.parentName}</strong>
                     <span className="testimonial-card__child">Parent of {t.childName} • {t.program}</span>

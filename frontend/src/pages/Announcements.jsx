@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiCalendar } from 'react-icons/fi';
+import { FiCalendar, FiBell, FiFileText, FiBookmark, FiSun } from 'react-icons/fi';
 import API from '../api';
 import './PageStyles.css';
 
@@ -14,7 +14,12 @@ const defaultAnnouncements = [
   { _id: '4', title: 'Republic Day Holiday', content: 'The school will remain closed on January 26th (Sunday) in observance of Republic Day. Regular classes resume on Monday, January 27th.', category: 'holiday', publishDate: '2025-01-22' },
 ];
 
-const catEmoji = { news: '📰', update: '📢', notice: '📌', holiday: '🏖️' };
+const catIcons = {
+  news: <FiFileText aria-hidden="true" />,
+  update: <FiBell aria-hidden="true" />,
+  notice: <FiBookmark aria-hidden="true" />,
+  holiday: <FiSun aria-hidden="true" />
+};
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState(defaultAnnouncements);
@@ -37,7 +42,7 @@ const Announcements = () => {
       <section className="page-hero page-hero--announcements">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">📢 Announcements</span>
+            <span className="section-header__badge"><FiBell /> Announcements</span>
             <h1>Announcements & News</h1>
             <p>Stay informed about the latest happenings at our school.</p>
           </motion.div>
@@ -50,7 +55,7 @@ const Announcements = () => {
             {announcements.map((a, i) => (
               <motion.div key={a._id} className="card announcement-card" initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}>
                 <div className="announcement-card__meta">
-                  <span className="announcement-card__emoji">{catEmoji[a.category] || '📌'}</span>
+                  <span className="announcement-card__icon" style={{ display: 'inline-flex', alignItems: 'center', color: 'var(--color-primary)', marginRight: '6px' }}>{catIcons[a.category] || <FiBookmark />}</span>
                   <span className="badge badge--blue">{a.category}</span>
                   <span className="announcement-card__date"><FiCalendar /> {formatDate(a.publishDate)}</span>
                 </div>

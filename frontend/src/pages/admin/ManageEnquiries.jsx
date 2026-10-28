@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FiMessageSquare } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
 
@@ -32,7 +33,7 @@ const ManageEnquiries = () => {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '24px' }}>💬 Manage Enquiries</h2>
+      <h2 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}><FiMessageSquare style={{ color: 'var(--color-primary)' }} /> Manage Enquiries</h2>
       <div className="admin-filters">
         <input type="text" placeholder="Search by name, email, phone..." value={filter.search} onChange={e => setFilter({ ...filter, search: e.target.value })} onKeyDown={e => e.key === 'Enter' && fetchEnquiries()} className="form-input" style={{ maxWidth: '300px' }} />
         <select value={filter.status} onChange={e => setFilter({ ...filter, status: e.target.value })} className="form-select" style={{ maxWidth: '180px' }}>

@@ -1,6 +1,6 @@
 import { Navigate, Outlet, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiHome, FiUsers, FiMessageSquare, FiImage, FiBell, FiCalendar, FiStar, FiHelpCircle, FiLogOut, FiMenu } from 'react-icons/fi';
+import { FiHome, FiUsers, FiMessageSquare, FiImage, FiBell, FiCalendar, FiStar, FiHelpCircle, FiLogOut, FiMenu, FiSun, FiGlobe } from 'react-icons/fi';
 import { useState } from 'react';
 import './Admin.css';
 
@@ -26,7 +26,7 @@ const AdminLayout = () => {
     <div className="admin">
       <aside className={`admin__sidebar ${sidebarOpen ? 'admin__sidebar--open' : ''}`}>
         <div className="admin__sidebar-header">
-          <span>🌈</span>
+          <span className="admin__brand-icon"><FiSun style={{ color: '#f59e0b', fontSize: '1.35rem' }} /></span>
           <div>
             <strong>CK Admin</strong>
             <small>{user?.name}</small>
@@ -40,7 +40,7 @@ const AdminLayout = () => {
           ))}
         </nav>
         <div className="admin__sidebar-footer">
-          <NavLink to="/" className="admin__nav-link" target="_blank">🌐 View Site</NavLink>
+          <NavLink to="/" className="admin__nav-link" target="_blank" rel="noopener noreferrer"><FiGlobe /> <span>View Site</span></NavLink>
           <button onClick={logout} className="admin__nav-link admin__logout-btn"><FiLogOut /> <span>Logout</span></button>
         </div>
       </aside>

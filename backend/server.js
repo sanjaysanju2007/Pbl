@@ -5,12 +5,16 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const dotenv = require('dotenv');
 const connectDB = require('./database/connection');
+const { initFirebase } = require('./database/firebase');
 
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
+// Initialize Database Connections
+initFirebase();
+if (process.env.DB_MODE === 'mongodb') {
+  connectDB();
+}
 
 const app = express();
 

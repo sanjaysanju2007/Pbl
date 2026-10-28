@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const { isFirebaseConnected, admissionsRepo } = require('../database/firestoreRepository');
 
 const dataDir = path.join(__dirname, '..', 'database', 'fallback');
 const dataFilePath = path.join(dataDir, 'admissions.json');
@@ -143,7 +144,7 @@ const persistToFile = () => {
 };
 
 const isDbConnected = () => {
-  return mongoose.connection.readyState === 1;
+  return (mongoose.connection && mongoose.connection.readyState === 1) || isFirebaseConnected();
 };
 
 // Export storage operations
@@ -210,6 +211,13 @@ module.exports = {
     };
     memoryAdmissions.unshift(newAdm);
     persistToFile();
+
+    if (isFirebaseConnected()) {
+      admissionsRepo.create(newAdm, newAdm.applicationNumber || newAdm._id).catch(e => {
+        console.warn('Firestore admission sync notice:', e.message);
+      });
+    }
+
     return newAdm;
   },
 
@@ -236,6 +244,13 @@ module.exports = {
 
     memoryAdmissions[idx] = updated;
     persistToFile();
+
+    if (isFirebaseConnected()) {
+      admissionsRepo.findByIdAndUpdate(updated.applicationNumber || updated._id, updated).catch(e => {
+        console.warn('Firestore admission update notice:', e.message);
+      });
+    }
+
     return updated;
   }
 };

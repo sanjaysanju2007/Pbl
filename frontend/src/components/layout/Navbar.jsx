@@ -20,7 +20,8 @@ import {
   FiCompass,
   FiLayers,
   FiHeart,
-  FiUser
+  FiUser,
+  FiSun
 } from 'react-icons/fi';
 import './Navbar.css';
 
@@ -261,7 +262,7 @@ const Navbar = () => {
             </div>
             <div className="navbar__brand-text">
               <span className="navbar__brand-title">
-                Chittukurumbakam <span className="navbar__sun-icon" title="Sunny Beginnings">☀️</span>
+                Chittukurumbakam <FiSun className="navbar__sun-icon" title="Sunny Beginnings" aria-label="Sunny Beginnings" />
               </span>
               <span className="navbar__brand-subtitle">
                 <span>Play School</span>

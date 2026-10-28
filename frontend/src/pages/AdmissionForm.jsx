@@ -16,6 +16,8 @@ import {
   FiAlertCircle,
   FiCalendar,
   FiUser,
+  FiUsers,
+  FiEdit3,
   FiHeart
 } from 'react-icons/fi';
 import API from '../api';
@@ -224,7 +226,7 @@ const AdmissionForm = () => {
             >
               <div className="admission-success-header">
                 <span className="admission-success-icon"><FiCheck size={42} /></span>
-                <h2>Admission Application Submitted! 🎉</h2>
+                <h2>Admission Application Submitted!</h2>
                 <p>
                   Thank you for applying to Chittukurumbakam Play School. We have received your application for <strong>{submittedData.childName}</strong>.
                 </p>
@@ -305,7 +307,7 @@ const AdmissionForm = () => {
       <section className="page-hero page-hero--admission">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">📝 Admissions Open 2026–2027</span>
+            <span className="section-header__badge"><FiEdit3 /> Admissions Open 2026–2027</span>
             <h1>Student Admission Application</h1>
             <p>
               Take the first joyful step in your child's education. Complete our secure online application form below.
@@ -320,10 +322,10 @@ const AdmissionForm = () => {
           {/* Progress Indicator */}
           <div className="admission-steps-nav">
             {[
-              { num: 1, label: 'Student Details', icon: '👶' },
-              { num: 2, label: 'Parent Details', icon: '👨‍👩‍👦' },
-              { num: 3, label: 'Additional & Docs', icon: '📄' },
-              { num: 4, label: 'Review & Submit', icon: '✅' }
+              { num: 1, label: 'Student Details' },
+              { num: 2, label: 'Parent Details' },
+              { num: 3, label: 'Additional & Docs' },
+              { num: 4, label: 'Review & Submit' }
             ].map(s => (
               <div
                 key={s.num}
@@ -333,7 +335,7 @@ const AdmissionForm = () => {
                 tabIndex={step > s.num ? 0 : -1}
               >
                 <span className="admission-step-pill__num">
-                  {step > s.num ? '✓' : s.num}
+                  {step > s.num ? <FiCheck size={14} /> : s.num}
                 </span>
                 <span className="admission-step-pill__label">{s.label}</span>
               </div>
@@ -419,10 +421,10 @@ const AdmissionForm = () => {
                         className={`form-select ${errors.program ? 'error' : ''}`}
                       >
                         <option value="">Select Program</option>
-                        <option value="Playgroup">🧸 Playgroup (1.5 – 2.5 Years)</option>
-                        <option value="Nursery">🎨 Nursery (2.5 – 3.5 Years)</option>
-                        <option value="LKG">📚 LKG (3.5 – 4.5 Years)</option>
-                        <option value="UKG">🎓 UKG (4.5 – 5.5 Years)</option>
+                        <option value="Playgroup">Playgroup (1.5 – 2.5 Years)</option>
+                        <option value="Nursery">Nursery (2.5 – 3.5 Years)</option>
+                        <option value="LKG">LKG (3.5 – 4.5 Years)</option>
+                        <option value="UKG">UKG (4.5 – 5.5 Years)</option>
                       </select>
                       {errors.program && <span className="form-error">{errors.program}</span>}
                     </div>
@@ -694,9 +696,9 @@ const AdmissionForm = () => {
                         onChange={handleChange}
                         className="form-select"
                       >
-                        <option value="Phone Call">📞 Direct Phone Call</option>
-                        <option value="WhatsApp">💬 WhatsApp Message</option>
-                        <option value="Email">✉️ Email</option>
+                        <option value="Phone Call">Direct Phone Call</option>
+                        <option value="WhatsApp">WhatsApp Message</option>
+                        <option value="Email">Email</option>
                       </select>
                     </div>
                   </div>
@@ -799,7 +801,7 @@ const AdmissionForm = () => {
                     {/* Student Info Card */}
                     <div className="admission-review-card">
                       <div className="admission-review-card__head">
-                        <h4>👶 Student Profile</h4>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiUser /> Student Profile</h4>
                         <button type="button" onClick={() => setStep(1)} className="admission-edit-btn">
                           Edit
                         </button>
@@ -818,7 +820,7 @@ const AdmissionForm = () => {
                     {/* Parent Info Card */}
                     <div className="admission-review-card">
                       <div className="admission-review-card__head">
-                        <h4>👨‍👩‍👧 Parent / Guardian Contact</h4>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiUsers /> Parent / Guardian Contact</h4>
                         <button type="button" onClick={() => setStep(2)} className="admission-edit-btn">
                           Edit
                         </button>
@@ -835,7 +837,7 @@ const AdmissionForm = () => {
                     {/* Additional & Files Card */}
                     <div className="admission-review-card">
                       <div className="admission-review-card__head">
-                        <h4>📄 Documents & Notes</h4>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiFileText /> Documents & Notes</h4>
                         <button type="button" onClick={() => setStep(3)} className="admission-edit-btn">
                           Edit
                         </button>

@@ -1,7 +1,18 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiCalendar, FiClock, FiArrowRight } from 'react-icons/fi';
+import { 
+  FiCalendar, 
+  FiClock, 
+  FiArrowRight, 
+  FiAward, 
+  FiStar, 
+  FiFileText, 
+  FiCompass, 
+  FiSun, 
+  FiTag, 
+  FiBell 
+} from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import API from '../api';
 import './PageStyles.css';
@@ -18,12 +29,12 @@ const defaultEvents = [
 ];
 
 const typeConfig = {
-  celebration: { emoji: '🎉', label: 'Celebration', color: 'coral' },
-  competition: { emoji: '🏆', label: 'Competition', color: 'yellow' },
-  workshop: { emoji: '📝', label: 'Workshop', color: 'blue' },
-  'field-trip': { emoji: '🚌', label: 'Field Trip', color: 'green' },
-  holiday: { emoji: '🏖️', label: 'Holiday', color: 'lavender' },
-  other: { emoji: '📌', label: 'Event', color: 'blue' },
+  celebration: { icon: <FiSun size={15} aria-hidden="true" />, label: 'Celebration', color: 'coral' },
+  competition: { icon: <FiAward size={15} aria-hidden="true" />, label: 'Competition', color: 'yellow' },
+  workshop: { icon: <FiFileText size={15} aria-hidden="true" />, label: 'Workshop', color: 'blue' },
+  'field-trip': { icon: <FiCompass size={15} aria-hidden="true" />, label: 'Field Trip', color: 'green' },
+  holiday: { icon: <FiStar size={15} aria-hidden="true" />, label: 'Holiday', color: 'lavender' },
+  other: { icon: <FiTag size={15} aria-hidden="true" />, label: 'Event', color: 'blue' },
 };
 
 // Countdown component
@@ -51,7 +62,9 @@ function Countdown({ date }) {
 
   return (
     <div className="event-countdown">
-      <span className="event-countdown__label">⏳ Starts in</span>
+      <span className="event-countdown__label" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <FiClock size={12} aria-hidden="true" /> Starts in
+      </span>
       <div className="event-countdown__units">
         {[['days', 'Days'], ['hours', 'Hrs'], ['mins', 'Min']].map(([key, label]) => (
           <div key={key} className="event-countdown__unit">
@@ -109,7 +122,7 @@ const Events = () => {
       <section className="page-hero page-hero--events">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">🎪 Events</span>
+            <span className="section-header__badge"><FiCalendar aria-hidden="true" /> Events</span>
             <h1>Events & Celebrations</h1>
             <p>Making memories that last a lifetime through joyful celebrations and activities.</p>
           </motion.div>
@@ -122,22 +135,24 @@ const Events = () => {
             <button
               className={`events-tab ${tab === 'upcoming' ? 'events-tab--active' : ''}`}
               onClick={() => setTab('upcoming')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              🗓️ Upcoming Events
+              <FiCalendar size={15} aria-hidden="true" /> Upcoming Events
               {upcomingCount > 0 && <span className="events-tab__badge">{upcomingCount}</span>}
             </button>
             <button
               className={`events-tab ${tab === 'past' ? 'events-tab--active' : ''}`}
               onClick={() => setTab('past')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              📋 Past Events
+              <FiClock size={15} aria-hidden="true" /> Past Events
               {pastCount > 0 && <span className="events-tab__badge events-tab__badge--muted">{pastCount}</span>}
             </button>
           </div>
 
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <span className="empty-state__emoji">📅</span>
+              <span className="empty-state__emoji"><FiCalendar size={48} aria-hidden="true" style={{ color: 'var(--neutral-400)' }} /></span>
               <h3>No {tab} events at the moment</h3>
               <p>Check back soon for updates!</p>
             </div>
@@ -168,18 +183,18 @@ const Events = () => {
                     {/* Content */}
                     <div className="event-card-new__content">
                       <div className="event-card-new__header">
-                        <span className="event-card-new__emoji">{cfg.emoji}</span>
+                        <span className="event-card-new__emoji">{cfg.icon}</span>
                         <h3>{event.title}</h3>
                         <span className={`badge badge--${cfg.color}`}>{cfg.label}</span>
                       </div>
                       <p>{event.description}</p>
                       <div className="event-card-new__meta">
                         <span className="event-card-new__meta-item">
-                          <FiCalendar size={13} /> {formatDate(event.date)}
+                          <FiCalendar size={13} aria-hidden="true" /> {formatDate(event.date)}
                         </span>
                         {event.time && (
                           <span className="event-card-new__meta-item">
-                            <FiClock size={13} /> {event.time}
+                            <FiClock size={13} aria-hidden="true" /> {event.time}
                           </span>
                         )}
                       </div>
@@ -197,8 +212,8 @@ const Events = () => {
               <p style={{ marginBottom: 'var(--space-md)', color: 'var(--text-secondary)' }}>
                 Want to stay updated on our events?
               </p>
-              <Link to="/announcements" className="btn btn--outline">
-                📢 View Announcements <FiArrowRight />
+              <Link to="/announcements" className="btn btn--outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <FiBell size={15} aria-hidden="true" /> View Announcements <FiArrowRight aria-hidden="true" />
               </Link>
             </div>
           )}

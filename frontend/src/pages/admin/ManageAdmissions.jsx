@@ -12,7 +12,11 @@ import {
   FiFileText,
   FiCalendar,
   FiClock,
-  FiAlertCircle
+  FiAlertCircle,
+  FiClipboard,
+  FiUser,
+  FiUsers,
+  FiPaperclip
 } from 'react-icons/fi';
 import API from '../../api';
 import './Admin.css';
@@ -113,7 +117,9 @@ const ManageAdmissions = () => {
       {/* Header with Title & Export Action */}
       <div className="admin-page-head">
         <div>
-          <h2>📋 Manage Student Admissions</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FiClipboard style={{ color: 'var(--color-primary)' }} /> Manage Student Admissions
+          </h2>
           <p>Review, filter, shortlist, and track incoming parent admission applications.</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -249,11 +255,11 @@ const ManageAdmissions = () => {
                       </td>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '0.82rem' }}>
-                          <a href={`tel:${adm.guardianPhone}`} style={{ color: 'var(--color-text)', fontWeight: 600, textDecoration: 'none' }}>
-                            📞 {adm.guardianPhone}
+                          <a href={`tel:${adm.guardianPhone}`} style={{ color: 'var(--color-text)', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <FiPhone size={12} /> {adm.guardianPhone}
                           </a>
-                          <a href={`mailto:${adm.guardianEmail}`} style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>
-                            ✉️ {adm.guardianEmail}
+                          <a href={`mailto:${adm.guardianEmail}`} style={{ color: 'var(--color-text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <FiMail size={12} /> {adm.guardianEmail}
                           </a>
                         </div>
                       </td>
@@ -394,7 +400,7 @@ const ManageAdmissions = () => {
 
               {/* Student Profile */}
               <div className="admin-drawer-card">
-                <h4 style={{ margin: '0 0 12px', color: '#1e3a8a' }}>👶 Student Details</h4>
+                <h4 style={{ margin: '0 0 12px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiUser /> Student Details</h4>
                 <div className="admin-details-grid">
                   <div><span>Full Name:</span> <strong>{selectedAdmission.childName}</strong></div>
                   <div><span>Program:</span> <strong>{selectedAdmission.program}</strong></div>
@@ -410,7 +416,7 @@ const ManageAdmissions = () => {
               {/* Parent Contact Details */}
               <div className="admin-drawer-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h4 style={{ margin: 0, color: '#1e3a8a' }}>👨‍👩‍👧 Parent / Guardian Contact</h4>
+                  <h4 style={{ margin: 0, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiUsers /> Parent / Guardian Contact</h4>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <a
                       href={`tel:${selectedAdmission.guardianPhone}`}
@@ -443,7 +449,7 @@ const ManageAdmissions = () => {
 
               {/* Uploaded Documents */}
               <div className="admin-drawer-card">
-                <h4 style={{ margin: '0 0 10px', color: '#1e3a8a' }}>📎 Attached Documents ({selectedAdmission.documents?.length || 0})</h4>
+                <h4 style={{ margin: '0 0 10px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiPaperclip /> Attached Documents ({selectedAdmission.documents?.length || 0})</h4>
                 {!selectedAdmission.documents || selectedAdmission.documents.length === 0 ? (
                   <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>No documents were attached with this online application.</p>
                 ) : (

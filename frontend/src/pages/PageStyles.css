@@ -223,9 +223,17 @@
 }
 
 .timeline-card__emoji {
-  font-size: 1.8rem;
-  display: block;
-  margin-bottom: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  border: 1px solid var(--primary-100);
 }
 
 .timeline-card__title {
@@ -498,6 +506,59 @@
 }
 
 /* ========================================
+   6.5. CURRICULUM DEV AREAS
+   ======================================== */
+.dev-areas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.dev-area-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.dev-area-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.dev-area-card__emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  border: 1px solid var(--primary-100);
+}
+
+.dev-area-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  color: var(--neutral-900);
+}
+
+.dev-area-card p {
+  font-size: 0.92rem;
+  color: var(--neutral-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ========================================
    7. PROGRAMS PAGE TABS & DETAILS
    ======================================== */
 .program-tabs {
@@ -698,9 +759,17 @@
 }
 
 .facility-card__emoji {
-  font-size: 2.2rem;
-  display: block;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
   margin-bottom: var(--space-md);
+  border: 1px solid var(--primary-100);
 }
 
 .facility-card__name {
@@ -1600,10 +1669,30 @@
   flex: 1;
 }
 
-.event-card-new__content h3 {
+.event-card-new__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.event-card-new__header h3 {
   font-size: 1.2rem;
-  margin-bottom: 6px;
+  margin: 0;
+  flex: 1;
   color: var(--neutral-900);
+}
+
+.event-card-new__emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: var(--neutral-100);
+  color: var(--neutral-700);
 }
 
 .event-card-new__content p {
@@ -1690,6 +1779,97 @@
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--neutral-600);
+}
+
+/* ========================================
+   12.5. TESTIMONIALS PAGE
+   ======================================== */
+.testimonial-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xl);
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  height: 100%;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-200);
+}
+
+.testimonial-card__stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--space-md);
+}
+
+.testimonial-card__stars svg {
+  width: 18px;
+  height: 18px;
+}
+
+.star-filled {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+.star-empty {
+  color: #cbd5e1;
+  fill: none;
+}
+
+.testimonial-card__message {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--neutral-700);
+  font-style: italic;
+  margin-bottom: var(--space-xl);
+  flex: 1;
+}
+
+.testimonial-card__author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--neutral-100);
+}
+
+.testimonial-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid var(--primary-200);
+}
+
+.testimonial-card__author strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.98rem;
+  color: var(--neutral-900);
+  margin-bottom: 2px;
+}
+
+.testimonial-card__child {
+  display: block;
+  font-size: 0.84rem;
+  color: var(--neutral-500);
 }
 
 /* ========================================

@@ -21,12 +21,18 @@ npm run install-all
 ### 2. Configure environment
 ```bash
 cp backend/.env.example backend/.env
-# Edit backend/.env with your MongoDB URI, JWT secret, and SMTP credentials
+# Edit backend/.env with your JWT secret and SMTP credentials
 ```
 
-### 3. Seed admin user
+### 3. Configure Firebase Firestore (Cloud Database)
+1. Go to the [Firebase Console](https://console.firebase.google.com/) and create/select your project.
+2. Under **Build**, select **Firestore Database** and click **Create database**.
+3. Go to **Project Settings** (gear icon) -> **Service accounts** tab.
+4. Click **Generate new private key** and download the JSON file.
+5. Rename the downloaded file to `serviceAccountKey.json` and place it in the `backend/` folder (or copy from `backend/serviceAccountKey.json.example`).
+6. Seed the initial admin user and data into Firestore:
 ```bash
-npm run seed
+npm run seed:firebase
 ```
 
 ### 4. Run development servers

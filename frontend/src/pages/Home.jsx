@@ -4,7 +4,8 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 import {
   FiArrowRight, FiBookOpen, FiHeart, FiShield, FiStar, FiUsers,
-  FiAward, FiSmile, FiChevronLeft, FiChevronRight, FiMaximize2, FiX
+  FiAward, FiSmile, FiChevronLeft, FiChevronRight, FiMaximize2, FiX,
+  FiHome, FiCompass, FiFeather, FiSun, FiBarChart2
 } from 'react-icons/fi';
 import './Home.css';
 
@@ -14,7 +15,8 @@ const heroShowcaseImages = [
     src: '/images/hero/classroom.jpg',
     title: 'Joyful & Interactive Classrooms',
     subtitle: 'Vibrant spaces with Montessori sensory materials, activity tables & caring mentors',
-    badge: '🏫 Modern Campus',
+    icon: <FiHome aria-hidden="true" />,
+    badgeText: 'Modern Campus',
     tag: 'Nursery & LKG',
     stat: '1:8 Teacher Ratio',
     description: 'Bright, welcoming classrooms equipped with Montessori sensory materials, child-sized activity tables, and interactive learning setups designed to spark early wonder and confidence.',
@@ -25,7 +27,8 @@ const heroShowcaseImages = [
     src: '/images/hero/campus.jpg',
     title: 'Safe Green Outdoor Playground',
     subtitle: 'Lush open lawn with certified child-safe slides, sensory tunnels & swings',
-    badge: '🌿 Eco Campus',
+    icon: <FiCompass aria-hidden="true" />,
+    badgeText: 'Eco Campus',
     tag: 'Safe & Monitored',
     stat: 'CCTV Monitored',
     description: 'Spacious child-safe outdoor play zones with soft premium turf, colorful slides, sensory play equipment, and complete CCTV surveillance for joyful everyday activity.',
@@ -36,7 +39,8 @@ const heroShowcaseImages = [
     src: '/images/hero/activities.jpg',
     title: 'Creative Arts, Music & Activities',
     subtitle: 'Little artists exploring colorful finger painting, rhythm percussion & group games',
-    badge: '🎨 Creative Arts',
+    icon: <FiFeather aria-hidden="true" />,
+    badgeText: 'Creative Arts',
     tag: 'Playgroup to UKG',
     stat: '100% Hands-On',
     description: 'Nurturing little minds through hands-on finger painting, musical rhythm instruments, clay modeling, and expressive activities that build fine motor skills.',
@@ -47,7 +51,8 @@ const heroShowcaseImages = [
     src: '/images/hero/storytime.jpg',
     title: 'Magical Story & Reading Circles',
     subtitle: 'Sparking lifelong curiosity, vocabulary & imagination in cozy beanbag corners',
-    badge: '📖 Phonics & Books',
+    icon: <FiBookOpen aria-hidden="true" />,
+    badgeText: 'Phonics & Books',
     tag: 'Early Literacy',
     stat: '500+ Books',
     description: 'Cozy beanbag library circles where passionate educators bring fairy tales and picture books to life, nurturing listening skills, curiosity, and language development.',
@@ -56,10 +61,10 @@ const heroShowcaseImages = [
 ];
 
 const programs = [
-  { name: 'Playgroup', age: '1.5 – 2.5 years', color: 'blue', emoji: '🧸', desc: 'A gentle introduction to social interaction, sensory play, and structured routines in a warm, safe space.', gradient: 'linear-gradient(135deg, #eff6ff, #dbeafe)' },
-  { name: 'Nursery', age: '2.5 – 3.5 years', color: 'green', emoji: '🎨', desc: 'Creative exploration through art, music, storytelling, and guided play to build foundational skills.', gradient: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)' },
-  { name: 'LKG', age: '3.5 – 4.5 years', color: 'yellow', emoji: '📚', desc: 'Structured learning readiness with phonics, number concepts, and collaborative activities.', gradient: 'linear-gradient(135deg, #fffbeb, #fef3c7)' },
-  { name: 'UKG', age: '4.5 – 5.5 years', color: 'coral', emoji: '🎓', desc: 'Advanced preparation for formal schooling with reading, writing, problem-solving, and leadership.', gradient: 'linear-gradient(135deg, #eff6ff, #e0e7ff)' },
+  { name: 'Playgroup', age: '1.5 – 2.5 years', color: 'blue', icon: <FiSmile size={24} aria-hidden="true" />, desc: 'A gentle introduction to social interaction, sensory play, and structured routines in a warm, safe space.', gradient: 'linear-gradient(135deg, #eff6ff, #dbeafe)' },
+  { name: 'Nursery', age: '2.5 – 3.5 years', color: 'green', icon: <FiFeather size={24} aria-hidden="true" />, desc: 'Creative exploration through art, music, storytelling, and guided play to build foundational skills.', gradient: 'linear-gradient(135deg, #f0fdfa, #ccfbf1)' },
+  { name: 'LKG', age: '3.5 – 4.5 years', color: 'yellow', icon: <FiBookOpen size={24} aria-hidden="true" />, desc: 'Structured learning readiness with phonics, number concepts, and collaborative activities.', gradient: 'linear-gradient(135deg, #fffbeb, #fef3c7)' },
+  { name: 'UKG', age: '4.5 – 5.5 years', color: 'coral', icon: <FiAward size={24} aria-hidden="true" />, desc: 'Advanced preparation for formal schooling with reading, writing, problem-solving, and leadership.', gradient: 'linear-gradient(135deg, #eff6ff, #e0e7ff)' },
 ];
 
 const highlights = [
@@ -72,10 +77,10 @@ const highlights = [
 ];
 
 const stats = [
-  { number: 500, suffix: '+', label: 'Happy Students', emoji: '👧', color: 'blue' },
-  { number: 15, suffix: '+', label: 'Years of Trust', emoji: '🏫', color: 'green' },
-  { number: 50, suffix: '+', label: 'Trained Teachers', emoji: '👩‍🏫', color: 'yellow' },
-  { number: 98, suffix: '%', label: 'Parent Satisfaction', emoji: '💯', color: 'coral' },
+  { number: 500, suffix: '+', label: 'Happy Students', icon: <FiSmile size={22} aria-hidden="true" />, color: 'blue' },
+  { number: 15, suffix: '+', label: 'Years of Trust', icon: <FiAward size={22} aria-hidden="true" />, color: 'green' },
+  { number: 50, suffix: '+', label: 'Trained Teachers', icon: <FiUsers size={22} aria-hidden="true" />, color: 'yellow' },
+  { number: 98, suffix: '%', label: 'Parent Satisfaction', icon: <FiHeart size={22} aria-hidden="true" />, color: 'coral' },
 ];
 
 const testimonials = [
@@ -116,7 +121,7 @@ function StatCard({ stat, index }) {
       animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ delay: index * 0.12, duration: 0.5, ease: 'easeOut' }}
     >
-      <span className="stat-card__emoji">{stat.emoji}</span>
+      <span className="stat-card__emoji" aria-hidden="true">{stat.icon}</span>
       <span className="stat-card__number">{count}{stat.suffix}</span>
       <span className="stat-card__label">{stat.label}</span>
     </motion.div>
@@ -181,7 +186,7 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Chittukurumbakam Play School — Where Every Child Blossoms 🌈</title>
+        <title>Chittukurumbakam Play School — Where Every Child Blossoms</title>
         <meta name="description" content="Chittukurumbakam Play School offers Playgroup, Nursery, LKG & UKG programs with a nurturing, safe, and joyful learning environment for children aged 1.5 to 5.5 years." />
       </Helmet>
 
@@ -215,7 +220,9 @@ const Home = () => {
                     className={`hero__showcase-tab ${i === showcaseIdx ? 'hero__showcase-tab--active' : ''}`}
                     onClick={() => setShowcaseIdx(i)}
                   >
-                    <span>{img.badge}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {img.icon} {img.badgeText}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -330,8 +337,9 @@ const Home = () => {
               className="hero__badge"
               animate={{ scale: [1, 1.04, 1] }}
               transition={{ repeat: Infinity, duration: 2.5 }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              ☀️ Admissions Open 2026-27
+              <FiSun aria-hidden="true" style={{ color: '#f59e0b' }} /> Admissions Open 2026-27
             </motion.span>
             <h1 className="hero__title">
               Where Every Child{' '}
@@ -353,8 +361,15 @@ const Home = () => {
             </div>
             <div className="hero__trust">
               <div className="hero__trust-avatars">
-                {['👦', '👧', '👶', '🧒'].map((e, i) => (
-                  <span key={i} className="hero__trust-avatar">{e}</span>
+                {[
+                  { bg: '#e0f2fe', color: '#0369a1' },
+                  { bg: '#dcfce7', color: '#15803d' },
+                  { bg: '#fef3c7', color: '#b45309' },
+                  { bg: '#fae8ff', color: '#86198f' }
+                ].map((av, i) => (
+                  <span key={i} className="hero__trust-avatar" style={{ background: av.bg, color: av.color }}>
+                    <FiSmile size={18} aria-hidden="true" />
+                  </span>
                 ))}
               </div>
               <span className="hero__trust-text">Trusted by <strong>500+ families</strong></span>
@@ -433,7 +448,9 @@ const Home = () => {
 
               <div className="showcase-modal__content">
                 <div className="showcase-modal__badges">
-                  <span className="showcase-modal__pill showcase-modal__pill--primary">{currShowcase.badge}</span>
+                  <span className="showcase-modal__pill showcase-modal__pill--primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    {currShowcase.icon} {currShowcase.badgeText}
+                  </span>
                   <span className="showcase-modal__pill showcase-modal__pill--gold">{currShowcase.tag}</span>
                   <span className="showcase-modal__pill showcase-modal__pill--teal">{currShowcase.stat}</span>
                 </div>
@@ -472,7 +489,7 @@ const Home = () => {
       <section className="section programs-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-header__badge">🎓 Our Programs</span>
+            <span className="section-header__badge"><FiBookOpen aria-hidden="true" /> Our Programs</span>
             <h2 className="section-header__title">Programs Tailored for Every Stage</h2>
             <p className="section-header__subtitle">
               From first steps to school-readiness, each program is carefully designed to match
@@ -493,7 +510,7 @@ const Home = () => {
                 whileHover={{ y: -8 }}
               >
                 <div className="program-card__bg"></div>
-                <span className="program-card__emoji">{prog.emoji}</span>
+                <span className="program-card__emoji" aria-hidden="true">{prog.icon}</span>
                 <h3 className="program-card__name">{prog.name}</h3>
                 <span className={`badge badge--${prog.color}`}>{prog.age}</span>
                 <p className="program-card__desc">{prog.desc}</p>
@@ -510,7 +527,7 @@ const Home = () => {
       <section className="section section--alt highlights-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-header__badge">💝 Why Choose Us</span>
+            <span className="section-header__badge"><FiHeart aria-hidden="true" /> Why Choose Us</span>
             <h2 className="section-header__title">What Makes Us Special</h2>
             <p className="section-header__subtitle">
               We don't just teach — we nurture. Here's why parents trust us with their most precious little ones.
@@ -540,7 +557,7 @@ const Home = () => {
       <section className="section stats-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-header__badge">📊 Our Impact</span>
+            <span className="section-header__badge"><FiBarChart2 aria-hidden="true" /> Our Impact</span>
             <h2>Numbers That Tell Our Story</h2>
             <p className="section-header__subtitle">
               Every milestone represents a smiling child, a confident step, and a proud family.
@@ -556,7 +573,7 @@ const Home = () => {
       <section className="section testimonials-home-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-header__badge">⭐ Testimonials</span>
+            <span className="section-header__badge"><FiStar aria-hidden="true" /> Testimonials</span>
             <h2 className="section-header__title">What Parents Are Saying</h2>
           </div>
           <div className="testimonial-carousel">
@@ -568,8 +585,10 @@ const Home = () => {
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="testimonial-carousel__stars">
-                {'⭐'.repeat(t.stars)}
+              <div className="testimonial-carousel__stars" aria-label={`${t.stars} out of 5 stars`}>
+                {[...Array(t.stars)].map((_, j) => (
+                  <FiStar key={j} style={{ color: '#f59e0b', fill: '#f59e0b', marginRight: '4px' }} aria-hidden="true" />
+                ))}
               </div>
               <p className="testimonial-carousel__message">"{t.message}"</p>
               <div className="testimonial-carousel__author">

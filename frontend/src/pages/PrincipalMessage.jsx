@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
+import { FiMail, FiUser } from 'react-icons/fi';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
@@ -15,7 +16,7 @@ const PrincipalMessage = () => {
       <section className="page-hero page-hero--principal">
         <div className="container">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-hero__content">
-            <span className="section-header__badge">💌 Welcome Note</span>
+            <span className="section-header__badge"><FiMail aria-hidden="true" /> Welcome Note</span>
             <h1>Principal's Message</h1>
             <p>A warm welcome from the heart of our school.</p>
           </motion.div>
@@ -26,7 +27,9 @@ const PrincipalMessage = () => {
         <div className="container container--narrow">
           <motion.div className="principal-message" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="principal-photo">
-              <span className="principal-photo__emoji">👩‍🏫</span>
+              <div className="principal-photo__avatar">
+                <FiUser size={56} style={{ color: 'var(--primary-600)' }} aria-hidden="true" />
+              </div>
               <h3>Mrs. Lakshmi Devi</h3>
               <span className="badge badge--blue">Founder & Principal</span>
             </div>
