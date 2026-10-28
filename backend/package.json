@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:firebase": "node database/seeds/seedFirebase.js",
+    "seed:admin": "node database/seeds/seedAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
