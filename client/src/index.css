@@ -1,0 +1,754 @@
+/* ========================================================
+   CHITTUKURUMBAKAM PLAY SCHOOL — DESIGN SYSTEM
+   Theme: "Sunny Beginnings"
+   Warm, welcoming, cheerful and trustworthy.
+   Friendly, childlike yet polished and professional.
+   ======================================================== */
+
+/* ---- CSS Reset & Box Sizing ---- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---- Design Tokens (Sunny Beginnings) ---- */
+:root {
+  /* Core Palette */
+  --color-primary: #1F7AB8;          /* Sky Blue: main buttons, links, active states */
+  --color-primary-light: #DCEFFB;    /* Light blue backgrounds, hover */
+  --color-accent: #FFC93C;           /* Sunny Yellow: highlights, badges, secondary buttons */
+  --color-accent-soft: #FFF3C4;      /* Soft Yellow: section backgrounds, footer */
+  --color-bg: #FFFBF0;               /* Warm Cream page background */
+  --color-surface: #FFFFFF;          /* Cards, forms, modals */
+  --color-text: #1F3A5F;             /* Deep Navy: headings and body */
+  --color-text-muted: #5B6B80;       /* Muted text */
+  --color-border: #F1E6C8;           /* Warm border */
+  --color-success: #3FB984;          /* Green: success, approved */
+  --color-warning: #F5A623;          /* Orange: warning */
+  --color-error: #E5484D;            /* Red: error, rejected */
+  --color-info: #4DA8DA;             /* Cyan / info */
+
+  /* Backward Compatibility Mappings */
+  --white: var(--color-surface);
+  --sky-blue: var(--color-primary);
+  --sky-blue-light: var(--color-primary-light);
+  --sky-blue-dark: #165b8c;
+  --sunshine-yellow: var(--color-accent);
+  --sunshine-yellow-light: var(--color-accent-soft);
+  --sunshine-yellow-dark: #d99a14;
+  --leaf-green: var(--color-success);
+  --leaf-green-light: #d4f4e6;
+  --leaf-green-dark: #278f62;
+  --coral: var(--color-error);
+  --coral-light: #fcd7d8;
+  --coral-dark: #b82d32;
+  --lavender: #6b7fc4;
+  --lavender-light: #e4e9f7;
+  --peach: #f89d6e;
+  --mint: #5ed6b3;
+
+  /* Primary Scales */
+  --primary-950: #0d1e33;
+  --primary-900: #142742;
+  --primary-800: var(--color-text);
+  --primary-700: #185e8e;
+  --primary-600: var(--color-primary);
+  --primary-500: #2b8dce;
+  --primary-400: #54a5dc;
+  --primary-300: #8bc3ea;
+  --primary-200: #bde0f6;
+  --primary-100: var(--color-primary-light);
+  --primary-50:  #f0f8fd;
+
+  /* Accent Gold / Yellow Scales */
+  --accent-gold-dark: #cc971b;
+  --accent-gold: var(--color-accent);
+  --accent-gold-light: #ffd76b;
+  --accent-gold-soft: var(--color-accent-soft);
+  --accent-gold-subtle: #fffdf5;
+
+  /* Accent Teal Scales */
+  --accent-teal-dark: #278f62;
+  --accent-teal: var(--color-success);
+  --accent-teal-light: #64cca0;
+  --accent-teal-soft: #d4f4e6;
+  --accent-teal-subtle: #f0faf5;
+
+  /* Neutrals */
+  --neutral-50: var(--color-bg);
+  --neutral-100: #faf3e2;
+  --neutral-200: var(--color-border);
+  --neutral-300: #e2d2a8;
+  --neutral-400: #9daec2;
+  --neutral-500: var(--color-text-muted);
+  --neutral-600: #44556d;
+  --neutral-700: #2d415b;
+  --neutral-800: #20354e;
+  --neutral-900: var(--color-text);
+
+  /* Text Colors */
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-muted);
+  --text-light: #7b8b9f;
+  --text-white: #ffffff;
+
+  /* Typography */
+  --font-heading: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-base-size: 16px;
+  --line-height-base: 1.6;
+
+  /* Shadows (Soft & Friendly) */
+  --shadow-xs: 0 1px 3px rgba(31, 58, 95, 0.05);
+  --shadow-sm: 0 2px 8px rgba(31, 58, 95, 0.06);
+  --shadow-md: 0 4px 16px rgba(31, 58, 95, 0.08);
+  --shadow-lg: 0 8px 24px rgba(31, 58, 95, 0.11);
+  --shadow-xl: 0 16px 36px rgba(31, 58, 95, 0.14);
+  --shadow-soft: 0 4px 16px rgba(31, 58, 95, 0.08);
+  --shadow-hover: 0 8px 24px rgba(31, 58, 95, 0.12);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-bg-strong: rgba(255, 251, 240, 0.96);
+  --glass-border: rgba(241, 230, 200, 0.8);
+  --glass-blur: blur(12px);
+
+  /* Shapes & Radius */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;                 /* Buttons, inputs */
+  --radius-lg: 20px;                 /* Cards, modals */
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;             /* Pill buttons, badges */
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 88px;
+
+  /* Layout Containers */
+  --container-max: 1240px;
+  --container-narrow: 840px;
+  --navbar-height: 72px;
+  --nav-height-total: var(--navbar-height);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+  --transition-slow: 300ms ease;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --navbar-height: 66px;
+    --space-3xl: 44px;
+    --space-4xl: 60px;
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Base Styles ---- */
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: var(--line-height-base);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2.2rem, 4vw + 1rem, 3.4rem); font-weight: 900; }
+h2 { font-size: clamp(1.75rem, 2.5vw + 0.8rem, 2.5rem); font-weight: 800; }
+h3 { font-size: clamp(1.3rem, 1.5vw + 0.5rem, 1.75rem); font-weight: 800; }
+h4 { font-size: 1.2rem; font-weight: 700; }
+
+p {
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-primary);
+  transition: all var(--transition-fast);
+}
+a:hover {
+  color: #165b8c;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul, ol { list-style: none; }
+
+/* ---- Layout Helpers ---- */
+.layout-main {
+  padding-top: var(--nav-height-total);
+  min-height: 75vh;
+  background-color: var(--color-bg);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+
+.container--narrow {
+  max-width: var(--container-narrow);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+}
+
+.section {
+  padding: var(--space-4xl) 0;
+  position: relative;
+}
+
+/* Sunny Beginnings Section Variants */
+.section--alt {
+  background-color: var(--color-accent-soft);
+  border-top: 1.5px solid var(--color-border);
+  border-bottom: 1.5px solid var(--color-border);
+}
+
+.section--white {
+  background-color: var(--color-surface);
+}
+
+.section--cream {
+  background-color: var(--color-bg);
+}
+
+.section--gradient {
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-primary-light) 50%, var(--color-bg) 100%);
+}
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+
+/* ---- Grids ---- */
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid { gap: var(--space-md); }
+}
+
+/* ---- Wavy Section Dividers ---- */
+.wavy-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+.wavy-divider svg {
+  display: block;
+  width: 100%;
+  height: 38px;
+}
+
+/* ---- Buttons (Sunny Beginnings Specifications) ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 12px 28px;
+  min-height: 48px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  letter-spacing: 0.01em;
+}
+
+/* Primary Button: Solid Sky Blue, White Text, Hover Lift */
+.btn--primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(31, 122, 184, 0.25);
+}
+.btn--primary:hover {
+  background-color: #17659a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(31, 122, 184, 0.35);
+  color: #ffffff;
+}
+
+/* Secondary Button: Sunny Yellow, Dark Navy Text (Never White on Yellow) */
+.btn--secondary {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(255, 201, 60, 0.35);
+  font-weight: 800;
+}
+.btn--secondary:hover {
+  background-color: #f7bd25;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 201, 60, 0.45);
+  color: var(--color-text);
+}
+
+/* Ghost Button: Transparent with Sky Blue Border */
+.btn--outline, .btn--outline-primary {
+  background: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.btn--outline:hover, .btn--outline-primary:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.btn--outline-white {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
+}
+.btn--outline-white:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btn--lg {
+  padding: 14px 34px;
+  font-size: 1.05rem;
+  min-height: 52px;
+}
+
+.btn--sm {
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  min-height: 40px;
+}
+
+.btn--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-full);
+}
+
+/* ---- Cards (Sunny Beginnings Specifications) ---- */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-soft);
+  transition: all var(--transition-base);
+  border: 1.5px solid var(--color-border);
+  position: relative;
+}
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+  border-color: #e5d7af;
+}
+
+.card--colored {
+  border: 1.5px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+.card--colored::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--color-primary);
+}
+.card--colored.blue::before { background: var(--color-primary); }
+.card--colored.green::before { background: var(--color-success); }
+.card--colored.yellow::before { background: var(--color-accent); }
+.card--colored.coral::before { background: var(--color-error); }
+.card--colored.lavender::before { background: var(--color-info); }
+
+/* ---- Section Headers ---- */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+}
+
+.section-header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  border: 1.5px solid var(--color-border);
+  letter-spacing: 0.02em;
+}
+
+.section-header__title {
+  margin-bottom: var(--space-sm);
+  color: var(--color-text);
+}
+
+.section-header__subtitle {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+/* ---- Form Controls (Sunny Beginnings Specifications) ---- */
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.form-label .required {
+  color: var(--color-error);
+  margin-left: 2px;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 16px; /* Prevents auto-zoom on mobile */
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(31, 122, 184, 0.18);
+  background: var(--color-surface);
+}
+
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.15);
+}
+
+.form-error {
+  font-size: 0.82rem;
+  color: var(--color-error);
+  margin-top: 4px;
+  font-weight: 600;
+  display: block;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Search input */
+.search-input-wrap {
+  position: relative;
+  margin-bottom: var(--space-xl);
+}
+.search-input-wrap svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px 12px 46px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  outline: none;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-xs);
+}
+.search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(31, 122, 184, 0.18);
+}
+
+/* ---- Badges & Pills (Sunny Beginnings Specifications) ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  letter-spacing: 0.02em;
+}
+.badge--blue {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid rgba(31, 122, 184, 0.2);
+}
+.badge--yellow {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-accent);
+}
+.badge--green {
+  background: #e6f7ef;
+  color: #278f62;
+  border: 1px solid rgba(63, 185, 132, 0.3);
+}
+.badge--coral {
+  background: #fde8e8;
+  color: var(--color-error);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+}
+.badge--lavender {
+  background: #eef2fb;
+  color: #4a62ab;
+  border: 1px solid #d5def5;
+}
+.badge--orange {
+  background: #fff0d6;
+  color: #b56c00;
+  border: 1px solid #ffd48a;
+}
+
+/* ---- Status Badges (Admission Status) ---- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+.status-badge--submitted {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid rgba(31, 122, 184, 0.25);
+}
+.status-badge--under_review {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  border: 1px solid var(--color-accent);
+}
+.status-badge--accepted, .status-badge--approved {
+  background: #e6f7ef;
+  color: #278f62;
+  border: 1px solid rgba(63, 185, 132, 0.35);
+}
+.status-badge--rejected {
+  background: #fde8e8;
+  color: var(--color-error);
+  border: 1px solid rgba(229, 72, 77, 0.35);
+}
+
+/* ---- Divider ---- */
+.divider {
+  height: 1.5px;
+  background: var(--color-border);
+  margin: var(--space-xl) 0;
+}
+
+/* ---- Toast / Alerts ---- */
+.toast {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  padding: 14px 22px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.92rem;
+  z-index: 10000;
+  max-width: 420px;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border: 1.5px solid transparent;
+}
+.toast--success {
+  background: #e6f7ef;
+  color: #278f62;
+  border-color: rgba(63, 185, 132, 0.4);
+}
+.toast--error {
+  background: #fde8e8;
+  color: var(--color-error);
+  border-color: rgba(229, 72, 77, 0.4);
+}
+.toast--info {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-color: rgba(31, 122, 184, 0.4);
+}
+
+/* ---- Loader ---- */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 251, 240, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.loader__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.loader__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+.loader__dot:nth-child(2) { background: var(--color-accent); animation-delay: 150ms; }
+.loader__dot:nth-child(3) { background: var(--color-success); animation-delay: 300ms; }
+
+.loader__text {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* ---- Responsive Utilities ---- */
+@media (max-width: 1024px) {
+  .hide-desktop { display: flex !important; }
+  .hide-mobile { display: none !important; }
+}
+
+@media (min-width: 1025px) {
+  .hide-desktop { display: none !important; }
+  .hide-mobile { display: flex !important; }
+}
+
+@media (max-width: 768px) {
+  .section { padding: var(--space-3xl) 0; }
+}
+
+/* Modern warm scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: #dfce9f; }

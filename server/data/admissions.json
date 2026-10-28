@@ -1,0 +1,200 @@
+[
+  {
+    "_id": "adm-1793198707504-926",
+    "createdAt": "2026-10-28T14:45:07.504Z",
+    "updatedAt": "2026-10-28T14:47:22.502Z",
+    "childName": "Judy",
+    "dateOfBirth": "2006-10-10",
+    "gender": "Female",
+    "program": "UKG",
+    "academicYear": "2027-2028",
+    "preferredStartDate": "2026-02-10",
+    "bloodGroup": "O+",
+    "allergies": "nope",
+    "primaryContactName": "Ramesh",
+    "relationship": "Guardian",
+    "fatherName": "",
+    "motherName": "",
+    "guardianPhone": "8489809099",
+    "guardianEmail": "Judy@2006gmail.com",
+    "alternatePhone": "",
+    "address": "kumaraplayama namakal district",
+    "city": "komaraplayo",
+    "pincode": "",
+    "previousSchool": "",
+    "specialConsiderations": "multi tasking guy",
+    "preferredContactMethod": "Phone Call",
+    "additionalComments": "",
+    "consentConfirmed": "true",
+    "documents": [],
+    "applicationNumber": "CKP-2026-73873",
+    "status": "rejected",
+    "statusHistory": [
+      {
+        "status": "rejected",
+        "note": "Status updated to rejected by administration",
+        "changedAt": "2026-10-28T14:47:22.502Z",
+        "changedBy": "School Administrator"
+      },
+      {
+        "status": "submitted",
+        "note": "Online admission application submitted by parent",
+        "changedAt": "2026-10-28T14:45:07.503Z",
+        "changedBy": "Parent / Applicant"
+      }
+    ],
+    "adminNotes": ""
+  },
+  {
+    "_id": "adm-1792231442175-559",
+    "createdAt": "2026-10-17T10:04:02.175Z",
+    "updatedAt": "2026-10-17T10:04:02.175Z",
+    "childName": "sanjay",
+    "dateOfBirth": "2021-12-03",
+    "gender": "Female",
+    "program": "Nursery",
+    "academicYear": "2026-2027",
+    "preferredStartDate": "2026-11-11",
+    "bloodGroup": "O-",
+    "allergies": "no",
+    "primaryContactName": "sanjay s",
+    "relationship": "Father",
+    "fatherName": "",
+    "motherName": "",
+    "guardianPhone": "9344506155",
+    "guardianEmail": "sanjay.2007s17@gmail.com",
+    "alternatePhone": "",
+    "address": "4,periyasemur Marriyaman Kovil Street Erode 4",
+    "city": "Tiruppur",
+    "pincode": "638004",
+    "previousSchool": "",
+    "specialConsiderations": "",
+    "preferredContactMethod": "Phone Call",
+    "additionalComments": "",
+    "consentConfirmed": "true",
+    "documents": [],
+    "applicationNumber": "CKP-2026-65682",
+    "status": "submitted",
+    "statusHistory": [
+      {
+        "status": "submitted",
+        "note": "Online admission application submitted by parent",
+        "changedAt": "2026-10-17T10:04:02.174Z",
+        "changedBy": "Parent / Applicant"
+      }
+    ]
+  },
+  {
+    "_id": "adm-demo-001",
+    "applicationNumber": "CKP-2026-48192",
+    "childName": "Aadhya Sharma",
+    "dateOfBirth": "2022-04-15",
+    "gender": "Female",
+    "program": "Nursery",
+    "academicYear": "2026-2027",
+    "preferredStartDate": "2026-06-01",
+    "bloodGroup": "B+",
+    "allergies": "None",
+    "previousSchool": "Little Stars Playgroup",
+    "primaryContactName": "Vikram Sharma",
+    "relationship": "Father",
+    "guardianPhone": "9876543210",
+    "guardianEmail": "parent@example.com",
+    "alternatePhone": "9876543211",
+    "address": "42, Green Avenue, Avinashi Road",
+    "city": "Tiruppur",
+    "pincode": "641602",
+    "preferredContactMethod": "Phone Call",
+    "comments": "Looking forward to the child-centric curriculum.",
+    "documents": [
+      {
+        "name": "Birth_Certificate_Aadhya.pdf",
+        "path": "uploads/demo-birth-cert.pdf",
+        "size": 145000,
+        "uploadedAt": "2026-10-15T09:04:03.786Z"
+      }
+    ],
+    "status": "submitted",
+    "adminNotes": "Application documents verified. Scheduled for parent-child interaction next week.",
+    "statusHistory": [
+      {
+        "status": "submitted",
+        "note": "Application documents verified. Scheduled for parent-child interaction next week.",
+        "changedAt": "2026-10-28T14:39:25.032Z",
+        "changedBy": "School Administrator"
+      },
+      {
+        "status": "shortlisted",
+        "note": "Application documents verified. Scheduled for parent-child interaction next week.",
+        "changedAt": "2026-10-17T10:05:23.091Z",
+        "changedBy": "School Administrator"
+      },
+      {
+        "status": "submitted",
+        "note": "Online admission application submitted by parent",
+        "changedAt": "2026-10-15T09:04:03.786Z",
+        "changedBy": "Parent / Applicant"
+      },
+      {
+        "status": "under_review",
+        "note": "Documents verified. Application currently being evaluated by admissions coordinator.",
+        "changedAt": "2026-10-16T09:04:03.786Z",
+        "changedBy": "Admissions Officer"
+      }
+    ],
+    "notificationStatus": {
+      "parentAcknowledged": true,
+      "adminNotified": true,
+      "lastAttemptAt": "2026-10-15T09:04:03.786Z"
+    },
+    "createdAt": "2026-10-15T09:04:03.786Z",
+    "updatedAt": "2026-10-28T14:39:25.032Z"
+  },
+  {
+    "_id": "adm-demo-002",
+    "applicationNumber": "CKP-2026-10294",
+    "childName": "Kabir Patel",
+    "dateOfBirth": "2023-01-20",
+    "gender": "Male",
+    "program": "Playgroup",
+    "academicYear": "2026-2027",
+    "preferredStartDate": "2026-06-01",
+    "bloodGroup": "O+",
+    "allergies": "Peanut allergy",
+    "previousSchool": "None",
+    "primaryContactName": "Meera Patel",
+    "relationship": "Mother",
+    "guardianPhone": "9944112233",
+    "guardianEmail": "meera.patel@example.com",
+    "alternatePhone": "9944112234",
+    "address": "15, Kumaran Road",
+    "city": "Tiruppur",
+    "pincode": "641601",
+    "preferredContactMethod": "WhatsApp",
+    "comments": "Interested in sensory play activities.",
+    "documents": [],
+    "status": "approved",
+    "adminNotes": "Admission approved for Playgroup Batch A. Welcome kit sent.",
+    "statusHistory": [
+      {
+        "status": "submitted",
+        "note": "Online admission application submitted by parent",
+        "changedAt": "2026-10-12T09:04:03.786Z",
+        "changedBy": "Parent / Applicant"
+      },
+      {
+        "status": "approved",
+        "note": "Application accepted. Seat reserved in Playgroup Morning session.",
+        "changedAt": "2026-10-14T09:04:03.786Z",
+        "changedBy": "Principal"
+      }
+    ],
+    "notificationStatus": {
+      "parentAcknowledged": true,
+      "adminNotified": true,
+      "lastAttemptAt": "2026-10-12T09:04:03.786Z"
+    },
+    "createdAt": "2026-10-12T09:04:03.786Z",
+    "updatedAt": "2026-10-14T09:04:03.786Z"
+  }
+]
