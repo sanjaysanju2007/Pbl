@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const AdminUser = require('../database/models/AdminUser');
+const { isFirebaseConnected, adminUsersRepo } = require('../database/firestoreRepository');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -24,8 +26,16 @@ exports.login = async (req, res) => {
                            (password === 'changeme123' || password === 'admin123');
 
     let user = null;
+    let isFirestoreUser = false;
+
     try {
-      user = await AdminUser.findOne({ email: cleanEmail }).select('+password');
+      if (isFirebaseConnected()) {
+        user = await adminUsersRepo.findOne('email', cleanEmail);
+        if (user) isFirestoreUser = true;
+      }
+      if (!user) {
+        user = await AdminUser.findOne({ email: cleanEmail }).select('+password');
+      }
     } catch (dbErr) {
       console.warn('DB lookup for admin failed, checking default credentials:', dbErr.message);
     }
@@ -47,11 +57,18 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials. (Hint: default admin is admin@chittukurumbakam.com / changeme123)' });
     }
 
-    if (!user.isActive) {
+    if (user.isActive === false) {
       return res.status(401).json({ success: false, message: 'Account is deactivated' });
     }
 
-    const isMatch = await user.comparePassword(password);
+    let isMatch = false;
+    if (isFirestoreUser) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else if (typeof user.comparePassword === 'function') {
+      isMatch = await user.comparePassword(password);
+    } else {
+      isMatch = await bcrypt.compare(password, user.password);
+    }
 
     if (!isMatch) {
       if (isDefaultAdmin) {
@@ -92,11 +109,24 @@ exports.login = async (req, res) => {
 // @access  Private
 exports.getMe = async (req, res) => {
   try {
-    const user = await AdminUser.findById(req.user.id);
+    let user = req.user;
+    if (!user && req.user?.id) {
+      if (isFirebaseConnected()) {
+        user = await adminUsersRepo.findById(req.user.id);
+      }
+      if (!user) {
+        user = await AdminUser.findById(req.user.id);
+      }
+    }
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     res.status(200).json({
       success: true,
       user: {
-        id: user._id,
+        id: user.id || user._id,
         name: user.name,
         email: user.email,
         role: user.role

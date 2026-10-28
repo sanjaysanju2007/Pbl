@@ -47,11 +47,11 @@ exports.createAdmission = async (req, res) => {
       changedBy: 'Parent / Applicant'
     }];
 
-    // Always store in resilient storage
+    // Always store in resilient storage (automatically syncs to Firestore)
     const savedFallback = storageService.addAdmission(admissionData);
 
     let dbAdmission = null;
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         dbAdmission = await Admission.create(admissionData);
       } catch (dbErr) {
@@ -72,7 +72,7 @@ exports.createAdmission = async (req, res) => {
         const parentSuccess = parentResult.status === 'fulfilled' && parentResult.value?.success;
         const adminSuccess = adminResult.status === 'fulfilled' && adminResult.value?.success;
 
-        if (dbAdmission && storageService.isDbConnected()) {
+        if (dbAdmission && storageService.isMongoConnected()) {
           await Admission.findByIdAndUpdate(admission._id, {
             'notificationStatus.parentAcknowledged': Boolean(parentSuccess),
             'notificationStatus.adminNotified': Boolean(adminSuccess),
@@ -130,7 +130,7 @@ exports.trackAdmission = async (req, res) => {
     let admission = null;
 
     // 1. Try DB first if connected
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         admission = await Admission.findOne({
           applicationNumber: cleanAppNo,
@@ -182,7 +182,7 @@ exports.getAdmissions = async (req, res) => {
   try {
     const { status, program, academicYear, search, page = 1, limit = 25 } = req.query;
 
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         const query = {};
 
@@ -262,7 +262,7 @@ exports.getAdmissions = async (req, res) => {
 exports.getAdmission = async (req, res) => {
   try {
     let admission = null;
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         admission = await Admission.findById(req.params.id);
       } catch (err) {}
@@ -291,7 +291,7 @@ exports.updateAdmission = async (req, res) => {
     // Update in fallback storage first
     let updated = storageService.updateAdmission(req.params.id, { status, adminNotes });
 
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         const admission = await Admission.findById(req.params.id);
         if (admission) {
@@ -338,7 +338,7 @@ exports.exportCSV = async (req, res) => {
     const { status, program } = req.query;
     let admissions = [];
 
-    if (storageService.isDbConnected()) {
+    if (storageService.isMongoConnected()) {
       try {
         const query = {};
         if (status) query.status = status;

@@ -1,10 +1,21 @@
 const Testimonial = require('../database/models/Testimonial');
+const { isFirebaseConnected, testimonialsRepo } = require('../database/firestoreRepository');
 
 // @desc    Get approved testimonials (public)
 // @route   GET /api/testimonials
 // @access  Public
 exports.getTestimonials = async (req, res) => {
   try {
+    if (isFirebaseConnected()) {
+      const result = await testimonialsRepo.find({
+        filter: { isApproved: true },
+        sortField: 'createdAt',
+        sortDirection: 'desc',
+        limit: 50
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const testimonials = await Testimonial.find({ isApproved: true }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: testimonials });
   } catch (error) {
@@ -17,6 +28,16 @@ exports.getTestimonials = async (req, res) => {
 // @access  Private
 exports.getAllTestimonials = async (req, res) => {
   try {
+    if (isFirebaseConnected()) {
+      const result = await testimonialsRepo.find({
+        filter: {},
+        sortField: 'createdAt',
+        sortDirection: 'desc',
+        limit: 100
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: testimonials });
   } catch (error) {
@@ -29,7 +50,12 @@ exports.getAllTestimonials = async (req, res) => {
 // @access  Private
 exports.createTestimonial = async (req, res) => {
   try {
-    const testimonial = await Testimonial.create(req.body);
+    let testimonial = null;
+    if (isFirebaseConnected()) {
+      testimonial = await testimonialsRepo.create(req.body);
+    } else {
+      testimonial = await Testimonial.create(req.body);
+    }
     res.status(201).json({ success: true, data: testimonial });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -45,10 +71,16 @@ exports.createTestimonial = async (req, res) => {
 // @access  Private
 exports.updateTestimonial = async (req, res) => {
   try {
-    const testimonial = await Testimonial.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    let testimonial = null;
+    if (isFirebaseConnected()) {
+      testimonial = await testimonialsRepo.findByIdAndUpdate(req.params.id, req.body);
+    } else {
+      testimonial = await Testimonial.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+    }
+
     if (!testimonial) {
       return res.status(404).json({ success: false, message: 'Testimonial not found' });
     }
@@ -63,7 +95,13 @@ exports.updateTestimonial = async (req, res) => {
 // @access  Private
 exports.deleteTestimonial = async (req, res) => {
   try {
-    const testimonial = await Testimonial.findByIdAndDelete(req.params.id);
+    let testimonial = null;
+    if (isFirebaseConnected()) {
+      testimonial = await testimonialsRepo.findByIdAndDelete(req.params.id);
+    } else {
+      testimonial = await Testimonial.findByIdAndDelete(req.params.id);
+    }
+
     if (!testimonial) {
       return res.status(404).json({ success: false, message: 'Testimonial not found' });
     }

@@ -1,11 +1,26 @@
 const Event = require('../database/models/Event');
+const { isFirebaseConnected, eventsRepo } = require('../database/firestoreRepository');
 
 // @desc    Get published events (public)
 // @route   GET /api/events
 // @access  Public
 exports.getEvents = async (req, res) => {
   try {
-    const { type, upcoming } = req.query;
+    const { type } = req.query;
+
+    if (isFirebaseConnected()) {
+      const filter = { isPublished: true };
+      if (type) filter.type = type;
+      const result = await eventsRepo.find({
+        filter,
+        sortField: 'date',
+        sortDirection: 'desc',
+        limit: 50
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
+    const { upcoming } = req.query;
     const query = { isPublished: true };
     if (type) query.type = type;
     if (upcoming === 'true') {
@@ -26,6 +41,16 @@ exports.getEvents = async (req, res) => {
 // @access  Private
 exports.getAllEvents = async (req, res) => {
   try {
+    if (isFirebaseConnected()) {
+      const result = await eventsRepo.find({
+        filter: {},
+        sortField: 'date',
+        sortDirection: 'desc',
+        limit: 100
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const events = await Event.find().sort({ date: -1 });
     res.status(200).json({ success: true, data: events });
   } catch (error) {
@@ -38,7 +63,12 @@ exports.getAllEvents = async (req, res) => {
 // @access  Private
 exports.createEvent = async (req, res) => {
   try {
-    const event = await Event.create(req.body);
+    let event = null;
+    if (isFirebaseConnected()) {
+      event = await eventsRepo.create(req.body);
+    } else {
+      event = await Event.create(req.body);
+    }
     res.status(201).json({ success: true, data: event });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -54,10 +84,16 @@ exports.createEvent = async (req, res) => {
 // @access  Private
 exports.updateEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    let event = null;
+    if (isFirebaseConnected()) {
+      event = await eventsRepo.findByIdAndUpdate(req.params.id, req.body);
+    } else {
+      event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+    }
+
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
@@ -72,7 +108,13 @@ exports.updateEvent = async (req, res) => {
 // @access  Private
 exports.deleteEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndDelete(req.params.id);
+    let event = null;
+    if (isFirebaseConnected()) {
+      event = await eventsRepo.findByIdAndDelete(req.params.id);
+    } else {
+      event = await Event.findByIdAndDelete(req.params.id);
+    }
+
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }

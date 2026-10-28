@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 
@@ -62,6 +62,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="admissions" element={<ManageAdmissions />} />
           <Route path="enquiries" element={<ManageEnquiries />} />

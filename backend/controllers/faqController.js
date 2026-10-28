@@ -1,4 +1,5 @@
 const FAQ = require('../database/models/FAQ');
+const { isFirebaseConnected, faqsRepo } = require('../database/firestoreRepository');
 
 // @desc    Get published FAQs (public)
 // @route   GET /api/faqs
@@ -6,6 +7,19 @@ const FAQ = require('../database/models/FAQ');
 exports.getFAQs = async (req, res) => {
   try {
     const { category } = req.query;
+
+    if (isFirebaseConnected()) {
+      const filter = { isPublished: true };
+      if (category) filter.category = category;
+      const result = await faqsRepo.find({
+        filter,
+        sortField: 'order',
+        sortDirection: 'asc',
+        limit: 100
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const query = { isPublished: true };
     if (category) query.category = category;
 
@@ -21,6 +35,16 @@ exports.getFAQs = async (req, res) => {
 // @access  Private
 exports.getAllFAQs = async (req, res) => {
   try {
+    if (isFirebaseConnected()) {
+      const result = await faqsRepo.find({
+        filter: {},
+        sortField: 'order',
+        sortDirection: 'asc',
+        limit: 200
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const faqs = await FAQ.find().sort({ order: 1 });
     res.status(200).json({ success: true, data: faqs });
   } catch (error) {
@@ -33,7 +57,12 @@ exports.getAllFAQs = async (req, res) => {
 // @access  Private
 exports.createFAQ = async (req, res) => {
   try {
-    const faq = await FAQ.create(req.body);
+    let faq = null;
+    if (isFirebaseConnected()) {
+      faq = await faqsRepo.create(req.body);
+    } else {
+      faq = await FAQ.create(req.body);
+    }
     res.status(201).json({ success: true, data: faq });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -49,10 +78,16 @@ exports.createFAQ = async (req, res) => {
 // @access  Private
 exports.updateFAQ = async (req, res) => {
   try {
-    const faq = await FAQ.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    let faq = null;
+    if (isFirebaseConnected()) {
+      faq = await faqsRepo.findByIdAndUpdate(req.params.id, req.body);
+    } else {
+      faq = await FAQ.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+    }
+
     if (!faq) {
       return res.status(404).json({ success: false, message: 'FAQ not found' });
     }
@@ -67,7 +102,13 @@ exports.updateFAQ = async (req, res) => {
 // @access  Private
 exports.deleteFAQ = async (req, res) => {
   try {
-    const faq = await FAQ.findByIdAndDelete(req.params.id);
+    let faq = null;
+    if (isFirebaseConnected()) {
+      faq = await faqsRepo.findByIdAndDelete(req.params.id);
+    } else {
+      faq = await FAQ.findByIdAndDelete(req.params.id);
+    }
+
     if (!faq) {
       return res.status(404).json({ success: false, message: 'FAQ not found' });
     }

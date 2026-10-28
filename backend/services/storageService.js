@@ -143,13 +143,18 @@ const persistToFile = () => {
   }
 };
 
+const isMongoConnected = () => {
+  return mongoose.connection && mongoose.connection.readyState === 1;
+};
+
 const isDbConnected = () => {
-  return (mongoose.connection && mongoose.connection.readyState === 1) || isFirebaseConnected();
+  return isMongoConnected() || isFirebaseConnected();
 };
 
 // Export storage operations
 module.exports = {
   isDbConnected,
+  isMongoConnected,
 
   findTrackAdmission: (applicationNumber, contact) => {
     const cleanApp = applicationNumber.trim().toUpperCase();

@@ -1,4 +1,5 @@
 const GalleryItem = require('../database/models/GalleryItem');
+const { isFirebaseConnected, galleryRepo } = require('../database/firestoreRepository');
 
 // @desc    Get all gallery items (public)
 // @route   GET /api/gallery
@@ -6,6 +7,20 @@ const GalleryItem = require('../database/models/GalleryItem');
 exports.getGalleryItems = async (req, res) => {
   try {
     const { category, type } = req.query;
+
+    if (isFirebaseConnected()) {
+      const filter = {};
+      if (category) filter.category = category;
+      if (type) filter.type = type;
+      const result = await galleryRepo.find({
+        filter,
+        sortField: 'createdAt',
+        sortDirection: 'desc',
+        limit: 100
+      });
+      return res.status(200).json({ success: true, data: result.data });
+    }
+
     const query = {};
     if (category) query.category = category;
     if (type) query.type = type;
@@ -22,6 +37,12 @@ exports.getGalleryItems = async (req, res) => {
 // @access  Public
 exports.getCategories = async (req, res) => {
   try {
+    if (isFirebaseConnected()) {
+      const result = await galleryRepo.find({ limit: 200 });
+      const categories = [...new Set(result.data.map(i => i.category).filter(Boolean))];
+      return res.status(200).json({ success: true, data: categories });
+    }
+
     const categories = await GalleryItem.distinct('category');
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
@@ -39,7 +60,12 @@ exports.createGalleryItem = async (req, res) => {
       url = `/uploads/gallery/${req.file.filename}`;
     }
 
-    const item = await GalleryItem.create({ ...req.body, url });
+    let item = null;
+    if (isFirebaseConnected()) {
+      item = await galleryRepo.create({ ...req.body, url });
+    } else {
+      item = await GalleryItem.create({ ...req.body, url });
+    }
     res.status(201).json({ success: true, data: item });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -55,10 +81,16 @@ exports.createGalleryItem = async (req, res) => {
 // @access  Private
 exports.updateGalleryItem = async (req, res) => {
   try {
-    const item = await GalleryItem.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    let item = null;
+    if (isFirebaseConnected()) {
+      item = await galleryRepo.findByIdAndUpdate(req.params.id, req.body);
+    } else {
+      item = await GalleryItem.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+    }
+
     if (!item) {
       return res.status(404).json({ success: false, message: 'Gallery item not found' });
     }
@@ -73,7 +105,13 @@ exports.updateGalleryItem = async (req, res) => {
 // @access  Private
 exports.deleteGalleryItem = async (req, res) => {
   try {
-    const item = await GalleryItem.findByIdAndDelete(req.params.id);
+    let item = null;
+    if (isFirebaseConnected()) {
+      item = await galleryRepo.findByIdAndDelete(req.params.id);
+    } else {
+      item = await GalleryItem.findByIdAndDelete(req.params.id);
+    }
+
     if (!item) {
       return res.status(404).json({ success: false, message: 'Gallery item not found' });
     }

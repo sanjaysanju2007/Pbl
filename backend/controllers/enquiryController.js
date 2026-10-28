@@ -1,4 +1,5 @@
 const Enquiry = require('../database/models/Enquiry');
+const { isFirebaseConnected, enquiriesRepo } = require('../database/firestoreRepository');
 const { sendEnquiryConfirmation, sendAdminNotification } = require('../services/emailService');
 
 // @desc    Submit enquiry (public)
@@ -6,7 +7,16 @@ const { sendEnquiryConfirmation, sendAdminNotification } = require('../services/
 // @access  Public
 exports.createEnquiry = async (req, res) => {
   try {
-    const enquiry = await Enquiry.create(req.body);
+    let enquiry = null;
+
+    if (isFirebaseConnected()) {
+      enquiry = await enquiriesRepo.create({
+        ...req.body,
+        status: req.body.status || 'new'
+      });
+    } else {
+      enquiry = await Enquiry.create(req.body);
+    }
 
     // Send emails asynchronously
     sendEnquiryConfirmation(enquiry);
@@ -14,7 +24,8 @@ exports.createEnquiry = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Thank you for your enquiry! We will get back to you within 24-48 hours.'
+      message: 'Thank you for your enquiry! We will get back to you within 24-48 hours.',
+      data: enquiry
     });
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -31,8 +42,25 @@ exports.createEnquiry = async (req, res) => {
 exports.getEnquiries = async (req, res) => {
   try {
     const { status, search, page = 1, limit = 20 } = req.query;
-    const query = {};
 
+    if (isFirebaseConnected()) {
+      const filter = {};
+      if (status) filter.status = status;
+      const result = await enquiriesRepo.find({
+        filter,
+        sortField: 'createdAt',
+        sortDirection: 'desc',
+        page: parseInt(page),
+        limit: parseInt(limit)
+      });
+      return res.status(200).json({
+        success: true,
+        data: result.data,
+        pagination: { total: result.total, page: result.page, pages: result.pages }
+      });
+    }
+
+    const query = {};
     if (status) query.status = status;
     if (search) {
       query.$or = [
@@ -65,11 +93,17 @@ exports.getEnquiries = async (req, res) => {
 exports.updateEnquiry = async (req, res) => {
   try {
     const { status, adminNotes } = req.body;
-    const enquiry = await Enquiry.findByIdAndUpdate(
-      req.params.id,
-      { status, adminNotes },
-      { new: true, runValidators: true }
-    );
+    let enquiry = null;
+
+    if (isFirebaseConnected()) {
+      enquiry = await enquiriesRepo.findByIdAndUpdate(req.params.id, { status, adminNotes });
+    } else {
+      enquiry = await Enquiry.findByIdAndUpdate(
+        req.params.id,
+        { status, adminNotes },
+        { new: true, runValidators: true }
+      );
+    }
 
     if (!enquiry) {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
@@ -86,10 +120,18 @@ exports.updateEnquiry = async (req, res) => {
 // @access  Private
 exports.deleteEnquiry = async (req, res) => {
   try {
-    const enquiry = await Enquiry.findByIdAndDelete(req.params.id);
+    let enquiry = null;
+
+    if (isFirebaseConnected()) {
+      enquiry = await enquiriesRepo.findByIdAndDelete(req.params.id);
+    } else {
+      enquiry = await Enquiry.findByIdAndDelete(req.params.id);
+    }
+
     if (!enquiry) {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
     }
+
     res.status(200).json({ success: true, message: 'Enquiry deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });

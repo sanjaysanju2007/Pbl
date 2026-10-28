@@ -28,22 +28,32 @@ const protect = async (req, res, next) => {
       return next();
     }
 
-    try {
-      req.user = await AdminUser.findById(decoded.id);
-    } catch (dbErr) {
-      // If DB is offline, allow default admin
-      req.user = {
-        _id: decoded.id,
-        id: decoded.id,
-        name: 'Administrator',
-        email: 'admin@chittukurumbakam.com',
-        role: 'superadmin',
-        isActive: true
-      };
-      return next();
+    const { isFirebaseConnected, adminUsersRepo } = require('../database/firestoreRepository');
+
+    if (isFirebaseConnected()) {
+      req.user = await adminUsersRepo.findById(decoded.id);
+      if (!req.user && typeof decoded.id === 'string' && decoded.id.startsWith('admin-')) {
+        req.user = await adminUsersRepo.findOne('_id', decoded.id);
+      }
     }
 
-    if (!req.user || !req.user.isActive) {
+    if (!req.user) {
+      try {
+        req.user = await AdminUser.findById(decoded.id);
+      } catch (dbErr) {
+        // Fallback for default admin token
+        req.user = {
+          _id: decoded.id,
+          id: decoded.id,
+          name: 'Administrator',
+          email: 'admin@chittukurumbakam.com',
+          role: 'superadmin',
+          isActive: true
+        };
+      }
+    }
+
+    if (!req.user || req.user.isActive === false) {
       return res.status(401).json({ success: false, message: 'Not authorized — user inactive or not found' });
     }
 
