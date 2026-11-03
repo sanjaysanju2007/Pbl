@@ -12,8 +12,12 @@ import {
   FiPlusCircle, 
   FiNavigation, 
   FiMonitor, 
-  FiCompass 
+  FiCompass,
+  FiArrowRight,
+  FiCamera
 } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -34,6 +38,8 @@ const facilities = [
 ];
 
 const Facilities = () => {
+  useDocumentTitle('Campus Facilities');
+
   return (
     <>
       <Helmet>
@@ -64,6 +70,23 @@ const Facilities = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiHome aria-hidden="true" />}
+        badge="Tour Our Campus"
+        title="Walk Through Our Spaces in Person"
+        description="Book a personal tour or browse our photo gallery to see our vibrant play zones in action."
+        primaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Browse Photo Gallery',
+          to: '/gallery'
+        }}
+      />
     </>
   );
 };

@@ -11,10 +11,13 @@ import {
   FiCompass, 
   FiSun, 
   FiTag, 
-  FiBell 
+  FiBell,
+  FiCamera
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -78,6 +81,7 @@ function Countdown({ date }) {
 }
 
 const Events = () => {
+  useDocumentTitle('Events & Celebrations');
   const [events, setEvents] = useState(defaultEvents);
   const [tab, setTab] = useState('upcoming');
 
@@ -219,6 +223,23 @@ const Events = () => {
           )}
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiCalendar aria-hidden="true" />}
+        badge="Campus Celebrations"
+        title="Experience the Joy of Childhood With Us"
+        description="See photos from our recent festivals, sports day, and story circles in our media gallery."
+        primaryAction={{
+          label: 'View Photo Gallery',
+          to: '/gallery',
+          icon: <FiCamera aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Check School Announcements',
+          to: '/announcements'
+        }}
+      />
     </>
   );
 };

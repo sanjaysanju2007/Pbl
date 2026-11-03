@@ -1,6 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiEye, FiTarget, FiHeart, FiStar, FiUsers, FiBookOpen, FiSun, FiFeather, FiCompass, FiAward } from 'react-icons/fi';
+import { FiEye, FiTarget, FiHeart, FiStar, FiUsers, FiBookOpen, FiSun, FiFeather, FiCompass, FiAward, FiArrowRight } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -15,6 +17,8 @@ const coreValues = [
 ];
 
 const VisionMission = () => {
+  useDocumentTitle('Vision & Mission');
+
   return (
     <>
       <Helmet>
@@ -75,6 +79,23 @@ const VisionMission = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiHeart aria-hidden="true" />}
+        badge="Our Care Culture"
+        title="Experience Our Values in Action"
+        description="See how our play-way methodology brings our vision and values alive every single day."
+        primaryAction={{
+          label: 'Explore Our Curriculum',
+          to: '/curriculum',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'View Programs',
+          to: '/programs'
+        }}
+      />
     </>
   );
 };

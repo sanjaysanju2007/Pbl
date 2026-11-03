@@ -11,8 +11,12 @@ import {
   FiHeart, 
   FiTrendingUp, 
   FiFeather, 
-  FiCalendar 
+  FiCalendar,
+  FiBookOpen,
+  FiArrowRight
 } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -40,6 +44,7 @@ const values = [
 ];
 
 const About = () => {
+  useDocumentTitle('About Us');
   return (
     <>
       <Helmet>
@@ -166,6 +171,22 @@ const About = () => {
           </div>
         </div>
       </section>
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiBookOpen aria-hidden="true" />}
+        badge="Explore Learning"
+        title="Discover Our Age-Appropriate Programs"
+        description="From toddler sensory exploration to school-readiness, explore the joyful stages we offer for children aged 1.5 to 5.5 years."
+        primaryAction={{
+          label: 'View Programs',
+          to: '/programs',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission'
+        }}
+      />
     </>
   );
 };

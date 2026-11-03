@@ -1,17 +1,35 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { FiSend, FiCheck, FiMessageSquare } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { FiSend, FiCheck, FiMessageSquare, FiFileText, FiArrowRight } from 'react-icons/fi';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
+import siteConfig from '../data/siteConfig';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
 const Enquiry = () => {
+  useDocumentTitle('Admission Enquiry');
+  const [searchParams] = useSearchParams();
+  const topic = searchParams.get('topic');
+
   const [form, setForm] = useState({ name: '', phone: '', email: '', childAge: '', programInterest: '', message: '' });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Pre-select fee schedule enquiry if topic=fees query param is present
+  useEffect(() => {
+    if (topic === 'fees') {
+      setForm(prev => ({
+        ...prev,
+        message: prev.message || 'I would like to request the official fee schedule and payment structure for the upcoming academic year.'
+      }));
+    }
+  }, [topic]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -78,6 +96,14 @@ const Enquiry = () => {
       <section className="section">
         <div className="container container--narrow">
           <form onSubmit={handleSubmit} className="enquiry-form card" style={{ padding: '40px' }}>
+            {topic === 'fees' && (
+              <div style={{ background: 'var(--color-primary-light)', padding: '14px 18px', borderRadius: '12px', border: '1px solid rgba(31, 122, 184, 0.25)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FiFileText style={{ color: 'var(--color-primary)', fontSize: '1.25rem', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
+                  <strong>Fee Schedule Request:</strong> Our admissions desk will send the complete fee breakdown and optional transportation costs to your email {siteConfig.admission.expectedEnquiryReplyTime}.
+                </span>
+              </div>
+            )}
             <h3 style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <FiSend aria-hidden="true" /> Send Us Your Enquiry
             </h3>
@@ -127,6 +153,23 @@ const Enquiry = () => {
           </form>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiMessageSquare aria-hidden="true" />}
+        badge="Direct Admission"
+        title="Ready to Apply Directly?"
+        description="Skip the enquiry queue and submit an online application form directly to our admissions committee."
+        primaryAction={{
+          label: 'Start Online Application',
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Explore Our Programs',
+          to: '/programs'
+        }}
+      />
     </>
   );
 };

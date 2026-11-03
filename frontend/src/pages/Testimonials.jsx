@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiStar, FiMessageSquare } from 'react-icons/fi';
+import { FiStar, FiMessageSquare, FiArrowRight } from 'react-icons/fi';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -17,6 +19,7 @@ const defaultTestimonials = [
 ];
 
 const Testimonials = () => {
+  useDocumentTitle('Parent Testimonials');
   const [testimonials, setTestimonials] = useState(defaultTestimonials);
 
   useEffect(() => {
@@ -45,33 +48,58 @@ const Testimonials = () => {
       <section className="section">
         <div className="container">
           <div className="grid grid-2 stagger">
-            {testimonials.map((t, i) => (
-              <motion.div key={t._id} className="card testimonial-card" initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}>
-                <div className="testimonial-card__stars" aria-label={`${t.rating || 5} out of 5 stars`}>
-                  {[...Array(5)].map((_, j) => (
-                    <FiStar
-                      key={j}
-                      className={j < (t.rating || 5) ? 'star-filled' : 'star-empty'}
-                      style={j < (t.rating || 5) ? { color: '#f59e0b', fill: '#f59e0b' } : { color: '#cbd5e1' }}
-                      aria-hidden="true"
-                    />
-                  ))}
-                </div>
-                <p className="testimonial-card__message">"{t.message}"</p>
-                <div className="testimonial-card__author">
-                  <div className="testimonial-card__avatar" aria-hidden="true">
-                    {t.parentName.charAt(0)}
+            {testimonials.map((t, i) => {
+              const metaParts = [];
+              if (t.childName) metaParts.push(`Parent of ${t.childName}`);
+              if (t.program) metaParts.push(t.program);
+
+              return (
+                <motion.div key={t._id} className="card testimonial-card" initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}>
+                  <div className="testimonial-card__stars" aria-label={`${t.rating || 5} out of 5 stars`}>
+                    {[...Array(5)].map((_, j) => (
+                      <FiStar
+                        key={j}
+                        className={j < (t.rating || 5) ? 'star-filled' : 'star-empty'}
+                        style={j < (t.rating || 5) ? { color: '#f59e0b', fill: '#f59e0b' } : { color: '#cbd5e1' }}
+                        aria-hidden="true"
+                      />
+                    ))}
                   </div>
-                  <div>
-                    <strong>{t.parentName}</strong>
-                    <span className="testimonial-card__child">Parent of {t.childName} • {t.program}</span>
+                  <p className="testimonial-card__message">"{t.message}"</p>
+                  <div className="testimonial-card__author">
+                    <div className="testimonial-card__avatar" aria-hidden="true">
+                      {t.parentName?.charAt(0) || 'P'}
+                    </div>
+                    <div>
+                      <strong>{t.parentName}</strong>
+                      {metaParts.length > 0 && (
+                        <span className="testimonial-card__child">{metaParts.join(' • ')}</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiMessageSquare aria-hidden="true" />}
+        badge="Join Our Happy Community"
+        title="Give Your Child the Chittukurumbakam Experience"
+        description="Experience the same caring, nurturing environment that our parents celebrate every day."
+        primaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact'
+        }}
+      />
     </>
   );
 };

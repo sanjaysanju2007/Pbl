@@ -10,9 +10,14 @@ import {
   FiClock, 
   FiShield, 
   FiPhone, 
-  FiMail 
+  FiMail,
+  FiSend,
+  FiArrowRight
 } from 'react-icons/fi';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
+import siteConfig from '../data/siteConfig';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4 } }) };
@@ -39,6 +44,7 @@ const categoryConfig = {
 };
 
 const FAQs = () => {
+  useDocumentTitle('Frequently Asked Questions');
   const [faqs, setFaqs] = useState(defaultFAQs);
   const [openId, setOpenId] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -179,15 +185,23 @@ const FAQs = () => {
             </AnimatePresence>
           </div>
 
-          {/* CTA */}
-          <div className="faq-cta card text-center" style={{ marginTop: 'var(--space-2xl)' }}>
-            <p style={{ marginBottom: 'var(--space-md)', maxWidth: 'none', fontWeight: 600 }}>
-              Didn't find your answer? We're happy to help!
-            </p>
-            <div className="flex-center gap-md flex-wrap">
-              <a href="tel:+919952285838" className="btn btn--primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FiPhone aria-hidden="true" /> Call Us</a>
-              <a href="mailto:info@chittukurumbakam.com" className="btn btn--outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}><FiMail aria-hidden="true" /> Email Us</a>
-            </div>
+          {/* Bottom Next Step Block */}
+          <div style={{ marginTop: 'var(--space-2xl)' }}>
+            <NextStep
+              icon={<FiHelpCircle aria-hidden="true" />}
+              badge="Parent Support"
+              title="Still Have Questions About Our School?"
+              description="Our friendly admissions coordinators are glad to clarify routines, transport routes, nutrition, or fee details."
+              primaryAction={{
+                label: 'Send an Enquiry',
+                to: '/enquiry',
+                icon: <FiSend aria-hidden="true" />
+              }}
+              secondaryAction={{
+                label: `Call Us (${siteConfig.phone.display})`,
+                href: `tel:${siteConfig.phone.value}`
+              }}
+            />
           </div>
         </div>
       </section>

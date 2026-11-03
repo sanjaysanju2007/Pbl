@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   FiClock, 
   FiUsers, 
@@ -10,8 +11,12 @@ import {
   FiSmile, 
   FiFeather, 
   FiAward, 
-  FiCheck 
+  FiCheck,
+  FiArrowRight,
+  FiFileText
 } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -48,6 +53,7 @@ const programs = [
 ];
 
 const Programs = () => {
+  useDocumentTitle('Our Programs');
   const [active, setActive] = useState('playgroup');
   const activeProgram = programs.find(p => p.id === active);
 
@@ -95,6 +101,16 @@ const Programs = () => {
 
             <p className="program-detail__overview">{activeProgram.overview}</p>
 
+            {/* Program Quick Action & Fee Schedule Row */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', margin: '20px 0' }}>
+              <Link to="/admission" className="btn btn--primary">
+                Apply for {activeProgram.name} <FiArrowRight />
+              </Link>
+              <Link to="/enquiry?topic=fees" className="btn btn--secondary" title="Receive our official detailed fee breakdown for this program">
+                <FiFileText style={{ marginRight: '6px' }} /> Request Fee Schedule
+              </Link>
+            </div>
+
             <div className="program-detail__grid">
               <div className="program-detail__section">
                 <h3><FiBookOpen /> Focus Areas</h3>
@@ -116,6 +132,23 @@ const Programs = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiBookOpen aria-hidden="true" />}
+        badge="Admissions Open"
+        title={`Ready to Enroll in ${activeProgram.name}?`}
+        description="Our educators welcome your toddler with warmth and gentle guidance. Apply online or schedule a campus tour."
+        primaryAction={{
+          label: `Apply for ${activeProgram.name}`,
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact'
+        }}
+      />
     </>
   );
 };

@@ -5,8 +5,12 @@ import { useRef, useEffect, useState } from 'react';
 import {
   FiArrowRight, FiBookOpen, FiHeart, FiShield, FiStar, FiUsers,
   FiAward, FiSmile, FiChevronLeft, FiChevronRight, FiMaximize2, FiX,
-  FiHome, FiCompass, FiFeather, FiSun, FiBarChart2
+  FiHome, FiCompass, FiFeather, FiSun, FiBarChart2, FiUser
 } from 'react-icons/fi';
+import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
+import siteConfig from '../data/siteConfig';
 import './Home.css';
 
 const heroShowcaseImages = [
@@ -134,12 +138,36 @@ const fadeUp = {
 };
 
 const Home = () => {
+  useDocumentTitle('Where Every Child Blossoms');
+
+  const [itemsTestimonials, setItemsTestimonials] = useState(testimonials);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [showcaseIdx, setShowcaseIdx] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const prevTestimonial = () => setTestimonialIdx(i => (i - 1 + testimonials.length) % testimonials.length);
-  const nextTestimonial = () => setTestimonialIdx(i => (i + 1) % testimonials.length);
+  // Fetch approved parent testimonials from API, fallback to default testimonials
+  useEffect(() => {
+    API.get('/testimonials')
+      .then(res => {
+        if (res.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          const list = res.data.data.map(item => ({
+            name: item.parentName || 'Parent',
+            child: item.childName ? `Parent of ${item.childName}${item.program ? ` • ${item.program}` : ''}` : '',
+            stars: item.rating || 5,
+            message: item.message,
+            avatar: (item.parentName || 'PR').slice(0, 2).toUpperCase()
+          }));
+          setItemsTestimonials(list);
+        }
+      })
+      .catch(() => {
+        // Fallback already populated with verified defaults
+      });
+  }, []);
+
+  const currentList = itemsTestimonials.length > 0 ? itemsTestimonials : testimonials;
+  const prevTestimonial = () => setTestimonialIdx(i => (i - 1 + currentList.length) % currentList.length);
+  const nextTestimonial = () => setTestimonialIdx(i => (i + 1) % currentList.length);
 
   const prevShowcase = () => {
     setShowcaseIdx(i => (i - 1 + heroShowcaseImages.length) % heroShowcaseImages.length);
@@ -152,7 +180,7 @@ const Home = () => {
   useEffect(() => {
     const timer = setInterval(nextTestimonial, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentList.length]);
 
   // 5 seconds moving for showcase images
   useEffect(() => {
@@ -180,7 +208,7 @@ const Home = () => {
     return () => { document.body.style.overflow = ''; };
   }, [isModalOpen]);
 
-  const t = testimonials[testimonialIdx];
+  const t = currentList[testimonialIdx] || currentList[0] || testimonials[0];
   const currShowcase = heroShowcaseImages[showcaseIdx];
 
   return (
@@ -374,6 +402,37 @@ const Home = () => {
               </div>
               <span className="hero__trust-text">Trusted by <strong>500+ families</strong></span>
             </div>
+
+            {/* 3 Safety Reassurance Highlights */}
+            <div className="hero-safety-strip" role="list" aria-label="Campus safety highlights">
+              {siteConfig.safetyHighlights.map((hl, i) => (
+                <div key={i} className="hero-safety-item" role="listitem">
+                  <div className="hero-safety-item__icon">
+                    {i === 0 ? <FiShield aria-hidden="true" /> : i === 1 ? <FiUsers aria-hidden="true" /> : <FiAward aria-hidden="true" />}
+                  </div>
+                  <div>
+                    <h3 className="hero-safety-item__title">{hl.title}</h3>
+                    <p className="hero-safety-item__desc">{hl.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Principal Leadership Reassurance Card */}
+            <Link to={siteConfig.principal.messageLink} className="principal-trust-card" title="Read a personal welcome message from our Founder & Principal">
+              <div className="principal-trust-card__avatar">
+                <FiUser aria-hidden="true" />
+              </div>
+              <div className="principal-trust-card__info">
+                <span className="principal-trust-card__label">School Leadership</span>
+                <h3 className="principal-trust-card__name">{siteConfig.principal.name}</h3>
+                <p className="principal-trust-card__quote">"Childhood is not just a preparation for the future — it is a joyful journey in itself."</p>
+              </div>
+              <div className="principal-trust-card__cta">
+                <span>Principal's Message</span>
+                <FiArrowRight size={14} aria-hidden="true" />
+              </div>
+            </Link>
           </motion.div>
         </div>
 
@@ -602,11 +661,11 @@ const Home = () => {
             <div className="testimonial-carousel__controls">
               <button className="testimonial-carousel__btn" onClick={prevTestimonial}><FiChevronLeft /></button>
               <div className="testimonial-carousel__dots">
-                {testimonials.map((_, i) => (
-                  <button key={i} className={`testimonial-carousel__dot ${i === testimonialIdx ? 'active' : ''}`} onClick={() => setTestimonialIdx(i)} />
+                {currentList.map((_, i) => (
+                  <button key={i} className={`testimonial-carousel__dot ${i === testimonialIdx ? 'active' : ''}`} onClick={() => setTestimonialIdx(i)} aria-label={`View testimonial ${i + 1}`} />
                 ))}
               </div>
-              <button className="testimonial-carousel__btn" onClick={nextTestimonial}><FiChevronRight /></button>
+              <button className="testimonial-carousel__btn" onClick={nextTestimonial} aria-label="Next testimonial"><FiChevronRight /></button>
             </div>
           </div>
           <div className="text-center" style={{ marginTop: 'var(--space-xl)' }}>
@@ -615,36 +674,22 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="section cta-section">
-        <div className="container">
-          <motion.div
-            className="cta-card"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="cta-card__bg"></div>
-            <div className="cta-card__content">
-              <span className="cta-card__emoji"><FiSmile size={44} /></span>
-              <h2>Ready to Give Your Child the Best Start?</h2>
-              <p>
-                Join our warm family of learners. Schedule a campus visit or apply online today —
-                admissions are now open for the upcoming academic year!
-              </p>
-              <div className="cta-card__actions">
-                <Link to="/admission" className="btn btn--primary btn--lg">
-                  Apply Now <FiArrowRight />
-                </Link>
-                <Link to="/contact" className="btn btn--outline btn--lg">
-                  Visit Our Campus
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* Next Step Block */}
+      <NextStep
+        icon={<FiHeart aria-hidden="true" />}
+        badge="Join Our Family"
+        title="Ready to Give Your Child the Best Start?"
+        description="Admissions are open for Academic Year 2026–2027. Tour our cheerful campus, meet our educators, or apply online in just 5 minutes."
+        primaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact'
+        }}
+      />
     </>
   );
 };

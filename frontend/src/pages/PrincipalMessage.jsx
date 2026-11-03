@@ -1,11 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiMail, FiUser } from 'react-icons/fi';
+import { FiMail, FiUser, FiCalendar, FiArrowRight } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 
 const PrincipalMessage = () => {
+  useDocumentTitle("Principal's Message");
+
   return (
     <>
       <Helmet>
@@ -49,6 +53,23 @@ const PrincipalMessage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiCalendar aria-hidden="true" />}
+        badge="Visit Our School"
+        title="Meet Our Leadership & Tour Our Campus"
+        description="We invite parents to meet Mrs. Lakshmi Devi and our mentoring team. Schedule a friendly campus visit today."
+        primaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Send an Enquiry',
+          to: '/enquiry'
+        }}
+      />
     </>
   );
 };

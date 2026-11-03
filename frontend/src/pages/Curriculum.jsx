@@ -14,8 +14,11 @@ import {
   FiHash, 
   FiUsers, 
   FiTrendingUp, 
-  FiFeather 
+  FiFeather,
+  FiArrowRight
 } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -30,6 +33,8 @@ const methodologies = [
 ];
 
 const Curriculum = () => {
+  useDocumentTitle('Curriculum & Pedagogy');
+
   return (
     <>
       <Helmet>
@@ -104,6 +109,23 @@ const Curriculum = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiLayers aria-hidden="true" />}
+        badge="Age-Wise Stages"
+        title="Find the Right Stage for Your Child"
+        description="See how our curriculum is structured across Playgroup, Nursery, LKG, and UKG classrooms."
+        primaryAction={{
+          label: 'View Programs Breakdown',
+          to: '/programs',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Admission Enquiry',
+          to: '/enquiry'
+        }}
+      />
     </>
   );
 };

@@ -1,6 +1,8 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiShield, FiCamera, FiUserCheck, FiAlertTriangle, FiTruck, FiLock } from 'react-icons/fi';
+import { FiShield, FiCamera, FiUserCheck, FiAlertTriangle, FiTruck, FiLock, FiCalendar } from 'react-icons/fi';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -15,6 +17,8 @@ const safety = [
 ];
 
 const Safety = () => {
+  useDocumentTitle('Safety & Security');
+
   return (
     <>
       <Helmet>
@@ -47,6 +51,23 @@ const Safety = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiShield aria-hidden="true" />}
+        badge="Safety First"
+        title="Experience Our Safe Campus Firsthand"
+        description="We welcome parents to visit our campus, observe our clean facilities, and meet our background-verified caregiving staff."
+        primaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact',
+          icon: <FiCalendar aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission'
+        }}
+      />
     </>
   );
 };

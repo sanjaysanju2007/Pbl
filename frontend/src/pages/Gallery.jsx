@@ -11,9 +11,12 @@ import {
   FiGrid, 
   FiCalendar, 
   FiBookOpen, 
-  FiActivity 
+  FiActivity,
+  FiArrowRight
 } from 'react-icons/fi';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05, duration: 0.4 } }) };
@@ -31,6 +34,7 @@ const defaultImages = [
 ];
 
 const Gallery = () => {
+  useDocumentTitle('Photo Gallery');
   const [items, setItems] = useState(defaultImages);
   const [categories, setCategories] = useState(['All', 'Events', 'Classroom', 'Activities']);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -211,6 +215,23 @@ const Gallery = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiCamera aria-hidden="true" />}
+        badge="Campus Tours"
+        title="Love What You See? Visit Our Campus"
+        description="Experience our vibrant classrooms, outdoor lawn, and Montessori spaces in person with your child."
+        primaryAction={{
+          label: 'Book a Campus Visit',
+          to: '/contact',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission'
+        }}
+      />
     </>
   );
 };

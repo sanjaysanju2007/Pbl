@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { FiPhone, FiMail, FiMapPin, FiClock, FiNavigation, FiExternalLink } from 'react-icons/fi';
+import { FiPhone, FiMail, FiMapPin, FiClock, FiNavigation, FiExternalLink, FiArrowRight } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -49,6 +51,7 @@ const contactCards = [
 ];
 
 const Contact = () => {
+  useDocumentTitle('Contact Us');
   return (
     <>
       <Helmet>
@@ -165,6 +168,23 @@ const Contact = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiPhone aria-hidden="true" />}
+        badge="Ready to Enroll?"
+        title="Begin Your Child's Admission Journey"
+        description="Our simple 4-step online admission form takes about 5 minutes to complete with zero hassle."
+        primaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Read Frequently Asked Questions',
+          to: '/faqs'
+        }}
+      />
     </>
   );
 };

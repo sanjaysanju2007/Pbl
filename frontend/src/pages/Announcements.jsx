@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { FiCalendar, FiBell, FiFileText, FiBookmark, FiSun } from 'react-icons/fi';
+import { FiCalendar, FiBell, FiFileText, FiBookmark, FiSun, FiArrowRight } from 'react-icons/fi';
 import API from '../api';
+import useDocumentTitle from '../hooks/useDocumentTitle';
+import NextStep from '../components/sections/NextStep';
 import './PageStyles.css';
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
@@ -22,6 +24,7 @@ const catIcons = {
 };
 
 const Announcements = () => {
+  useDocumentTitle('Announcements & Circulars');
   const [announcements, setAnnouncements] = useState(defaultAnnouncements);
 
   useEffect(() => {
@@ -66,6 +69,23 @@ const Announcements = () => {
           </div>
         </div>
       </section>
+
+      {/* Relevant Next Step Block */}
+      <NextStep
+        icon={<FiBell aria-hidden="true" />}
+        badge="Stay Connected"
+        title="Ready to Join Our Caring Community?"
+        description="Admissions are currently in progress for 2026–2027. Begin your child's application or get in touch with our team."
+        primaryAction={{
+          label: 'Apply for Admission',
+          to: '/admission',
+          icon: <FiArrowRight aria-hidden="true" />
+        }}
+        secondaryAction={{
+          label: 'Contact Our Office',
+          to: '/contact'
+        }}
+      />
     </>
   );
 };
