@@ -134,7 +134,7 @@
   --space-4xl: 88px;
 
   /* Layout Containers */
-  --container-max: 1240px;
+  --container-max: 1320px;
   --container-narrow: 840px;
   --navbar-height: 72px;
   --nav-height-total: var(--navbar-height);

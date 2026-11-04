@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Enquiry = require('../database/models/Enquiry');
 const { isFirebaseConnected, enquiriesRepo } = require('../database/firestoreRepository');
 const { sendEnquiryConfirmation, sendAdminNotification } = require('../services/emailService');
@@ -7,32 +8,79 @@ const { sendEnquiryConfirmation, sendAdminNotification } = require('../services/
 // @access  Public
 exports.createEnquiry = async (req, res) => {
   try {
+    const { name, phone, email, message } = req.body;
+
+    if (!name || !phone || !email || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: name, phone, email, and message.'
+      });
+    }
+
     let enquiry = null;
 
     if (isFirebaseConnected()) {
-      enquiry = await enquiriesRepo.create({
-        ...req.body,
-        status: req.body.status || 'new'
-      });
+      try {
+        console.log(`📝 Persisting enquiry from ${email} to Firebase Firestore...`);
+        enquiry = await enquiriesRepo.create({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim().toLowerCase(),
+          childAge: req.body.childAge || '',
+          programInterest: req.body.programInterest || '',
+          message: message.trim(),
+          status: req.body.status || 'new'
+        });
+
+        if (!enquiry || (!enquiry.id && !enquiry._id)) {
+          throw new Error('Firestore returned empty record upon creation.');
+        }
+
+        console.log(`✅ Successfully saved enquiry to Firestore (Doc ID: ${enquiry.id})`);
+      } catch (firestoreErr) {
+        console.error('🔴 Firestore write failed for enquiry:', firestoreErr);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to save enquiry to Firestore cloud database. Please try again.',
+          error: firestoreErr.message
+        });
+      }
+    } else if (mongoose.connection && mongoose.connection.readyState === 1) {
+      try {
+        enquiry = await Enquiry.create(req.body);
+        console.log(`✅ Saved enquiry to MongoDB (ID: ${enquiry._id})`);
+      } catch (mongoErr) {
+        console.error('🔴 MongoDB write failed for enquiry:', mongoErr);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to save enquiry to database. Please try again.',
+          error: mongoErr.message
+        });
+      }
     } else {
-      enquiry = await Enquiry.create(req.body);
+      console.error('🔴 Database connection unavailable for enquiry submission.');
+      return res.status(503).json({
+        success: false,
+        message: 'Database service is currently unavailable. Please contact the school directly.'
+      });
     }
 
     // Send emails asynchronously
     sendEnquiryConfirmation(enquiry);
     sendAdminNotification('enquiry', enquiry);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Thank you for your enquiry! We will get back to you within 24-48 hours.',
       data: enquiry
     });
   } catch (error) {
+    console.error('🔴 createEnquiry unexpected error:', error);
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(val => val.message);
       return res.status(400).json({ success: false, message: messages.join(', ') });
     }
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    return res.status(500).json({ success: false, message: 'Server error processing enquiry', error: error.message });
   }
 };
 
@@ -48,6 +96,8 @@ exports.getEnquiries = async (req, res) => {
       if (status) filter.status = status;
       const result = await enquiriesRepo.find({
         filter,
+        search,
+        searchFields: ['name', 'email', 'phone', 'message', 'programInterest'],
         sortField: 'createdAt',
         sortDirection: 'desc',
         page: parseInt(page),
@@ -77,13 +127,13 @@ exports.getEnquiries = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: enquiries,
       pagination: { total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
 
@@ -109,9 +159,9 @@ exports.updateEnquiry = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
     }
 
-    res.status(200).json({ success: true, data: enquiry });
+    return res.status(200).json({ success: true, data: enquiry });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
 
@@ -132,8 +182,8 @@ exports.deleteEnquiry = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
     }
 
-    res.status(200).json({ success: true, message: 'Enquiry deleted' });
+    return res.status(200).json({ success: true, message: 'Enquiry deleted' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };

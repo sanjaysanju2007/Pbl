@@ -12,10 +12,25 @@ import {
   FiPlusCircle,
   FiBarChart2,
   FiZap,
-  FiInbox
+  FiInbox,
+  FiPhone,
+  FiMapPin,
+  FiEye,
+  FiCalendar
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import API from '../../api';
 import './Admin.css';
+
+const statusConfig = {
+  submitted: { label: 'New', color: '#2563eb', bg: '#eff6ff' },
+  pending: { label: 'Pending', color: '#f59e0b', bg: '#fef3c7' },
+  under_review: { label: 'Under Review', color: '#0d9488', bg: '#f0fdfa' },
+  shortlisted: { label: 'Shortlisted', color: '#7c3aed', bg: '#f5f3ff' },
+  approved: { label: 'Approved', color: '#16a34a', bg: '#f0fdf4' },
+  rejected: { label: 'Rejected', color: '#dc2626', bg: '#fef2f2' },
+  waitlisted: { label: 'Waitlisted', color: '#64748b', bg: '#f8fafc' }
+};
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -55,7 +70,7 @@ const Dashboard = () => {
           API.get('/admissions?status=rejected&limit=1'),
           API.get('/enquiries?limit=1'),
           API.get('/enquiries?status=new&limit=1'),
-          API.get('/admissions?limit=5')
+          API.get('/admissions?limit=6')
         ]);
 
         setStats({
@@ -86,7 +101,8 @@ const Dashboard = () => {
       count: stats.total,
       icon: <FiUsers />,
       color: '#2563eb',
-      desc: 'All submitted student applications',
+      bgLight: '#eff6ff',
+      desc: 'All submitted applications',
       link: '/admin/admissions'
     },
     {
@@ -94,7 +110,8 @@ const Dashboard = () => {
       count: stats.submitted,
       icon: <FiClock />,
       color: '#f59e0b',
-      desc: 'Awaiting initial team review',
+      bgLight: '#fef3c7',
+      desc: 'Awaiting team review',
       link: '/admin/admissions?status=submitted'
     },
     {
@@ -102,37 +119,42 @@ const Dashboard = () => {
       count: stats.underReview,
       icon: <FiClock />,
       color: '#0d9488',
-      desc: 'Currently in committee evaluation',
+      bgLight: '#f0fdfa',
+      desc: 'In committee evaluation',
       link: '/admin/admissions?status=under_review'
     },
     {
-      label: 'Approved Applications',
+      label: 'Approved Seats',
       count: stats.approved,
       icon: <FiCheckCircle />,
       color: '#16a34a',
-      desc: 'Formal admission offers extended',
+      bgLight: '#f0fdf4',
+      desc: 'Admission offered',
       link: '/admin/admissions?status=approved'
-    },
-    {
-      label: 'Rejected Applications',
-      count: stats.rejected,
-      icon: <FiXCircle />,
-      color: '#dc2626',
-      desc: 'Ineligible or declined',
-      link: '/admin/admissions?status=rejected'
     },
     {
       label: 'Parent Enquiries',
       count: stats.enquiriesTotal,
       icon: <FiMessageSquare />,
       color: '#7c3aed',
-      desc: `${stats.enquiriesNew} new enquiries pending`,
+      bgLight: '#f5f3ff',
+      desc: `${stats.enquiriesNew} new enquiries`,
       link: '/admin/enquiries'
+    },
+    {
+      label: 'Declined / Ineligible',
+      count: stats.rejected,
+      icon: <FiXCircle />,
+      color: '#dc2626',
+      bgLight: '#fef2f2',
+      desc: 'Applications declined',
+      link: '/admin/admissions?status=rejected'
     }
   ];
 
   return (
     <div className="admin-page">
+      {/* Top Header Card */}
       <div className="admin-page-head">
         <div>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -140,22 +162,22 @@ const Dashboard = () => {
           </h2>
           <p>Real-time metrics calculated directly from database records.</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="admin-page-head__actions">
           <Link to="/admission" target="_blank" className="btn btn--outline btn--sm">
-            <FiPlusCircle /> New Admission Form
+            <FiPlusCircle /> New Form
           </Link>
           <a
             href="/api/admissions/export/csv"
             className="btn btn--secondary btn--sm"
             download
           >
-            <FiDownload /> Export Applications CSV
+            <FiDownload /> Export CSV
           </a>
         </div>
       </div>
 
-      {/* Summary Stat Cards */}
-      <div className="admin-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+      {/* Summary Stat Cards - Responsive Grid (2-cols on mobile, 3-cols on tablet, 6 on desktop) */}
+      <div className="admin-stats-grid">
         {applicationCards.map(card => (
           <Link
             key={card.label}
@@ -163,13 +185,13 @@ const Dashboard = () => {
             className="admin-stat-card"
             style={{ borderLeftColor: card.color }}
           >
-            <div className="admin-stat-card__icon" style={{ background: `${card.color}18`, color: card.color }}>
+            <div className="admin-stat-card__icon" style={{ background: card.bgLight, color: card.color }}>
               {card.icon}
             </div>
-            <div>
+            <div className="admin-stat-card__info">
               <span className="admin-stat-card__count">{loading ? '...' : card.count}</span>
               <span className="admin-stat-card__label">{card.label}</span>
-              <small style={{ display: 'block', fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
+              <small className="admin-stat-card__desc">
                 {card.desc}
               </small>
             </div>
@@ -178,83 +200,195 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Action Shortcuts */}
-      <div className="admin-quick-actions" style={{ margin: '28px 0' }}>
-        <h3 style={{ marginBottom: '14px', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <FiZap style={{ color: '#f59e0b' }} /> Quick Management Navigation
+      <div className="admin-quick-actions">
+        <h3 className="admin-quick-actions__title">
+          <FiZap style={{ color: '#f59e0b' }} /> Quick Management
         </h3>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="admin-quick-actions__pills">
           <Link to="/admin/admissions" className="btn btn--primary btn--sm">
             <FiUsers /> Review Admissions
           </Link>
           <Link to="/admin/enquiries" className="btn btn--outline btn--sm">
-            <FiMessageSquare /> View Parent Enquiries
+            <FiMessageSquare /> View Enquiries
           </Link>
           <Link to="/admin/gallery" className="btn btn--outline btn--sm">
-            Manage Campus Gallery
+            Campus Gallery
           </Link>
           <Link to="/admin/announcements" className="btn btn--secondary btn--sm">
-            Post School Announcement
+            Post Announcement
           </Link>
         </div>
       </div>
 
       {/* Recent Submissions Feed */}
-      <div className="admin-card-section" style={{ background: '#fff', borderRadius: '16px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+      <div className="admin-card-section">
+        <div className="admin-section-header-row">
           <h3 style={{ margin: 0, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FiInbox style={{ color: 'var(--color-primary)' }} /> Recent Admission Applications
+            <FiInbox style={{ color: 'var(--color-primary)' }} /> Recent Applications
           </h3>
-          <Link to="/admin/admissions" style={{ fontSize: '0.86rem', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
-            View All Applications →
+          <Link to="/admin/admissions" className="admin-link-accent">
+            View All →
           </Link>
         </div>
 
         {recentAdmissions.length === 0 ? (
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>No recent applications logged yet.</p>
+          <p style={{ color: '#64748b', fontSize: '0.9rem', padding: '16px 0' }}>No recent applications logged yet.</p>
         ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Ref No.</th>
-                  <th>Student Name</th>
-                  <th>Program</th>
-                  <th>Parent Contact</th>
-                  <th>Status</th>
-                  <th>Submitted</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentAdmissions.map(adm => (
-                  <tr key={adm._id}>
-                    <td>
-                      <strong style={{ fontFamily: 'monospace', color: '#1d4ed8' }}>
-                        {adm.applicationNumber || adm._id.slice(-6).toUpperCase()}
-                      </strong>
-                    </td>
-                    <td><strong>{adm.childName}</strong></td>
-                    <td><span className="badge badge--blue">{adm.program}</span></td>
-                    <td>
-                      {adm.primaryContactName || adm.fatherName || 'Parent'}<br />
-                      <small style={{ color: '#64748b' }}>{adm.guardianPhone}</small>
-                    </td>
-                    <td>
-                      <span className={`admin-status admin-status--${adm.status}`}>
-                        {adm.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td>{new Date(adm.createdAt).toLocaleDateString('en-IN')}</td>
-                    <td>
-                      <Link to="/admin/admissions" className="btn btn--outline btn--sm" style={{ padding: '4px 10px', fontSize: '0.78rem' }}>
-                        Review
-                      </Link>
-                    </td>
+          <>
+            {/* 1. Desktop & Tablet Table (Hidden on small mobile screens) */}
+            <div className="admin-table-wrap admin-desktop-only">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Ref No.</th>
+                    <th>Kid Name</th>
+                    <th>Category & Timing</th>
+                    <th>Parent Contact</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recentAdmissions.map(adm => {
+                    const cfg = statusConfig[adm.status] || statusConfig.submitted;
+                    const phoneClean = (adm.guardianPhone || '').replace(/\D/g, '');
+
+                    return (
+                      <tr key={adm._id || adm.id}>
+                        <td>
+                          <strong style={{ fontFamily: 'monospace', color: '#1d4ed8' }}>
+                            {adm.applicationNumber || (adm._id || adm.id).slice(-6).toUpperCase()}
+                          </strong>
+                        </td>
+                        <td>
+                          <strong>{adm.childName}</strong>
+                          {adm.age && <small style={{ display: 'block', color: '#64748b' }}>Age: {adm.age}</small>}
+                        </td>
+                        <td>
+                          <span className="badge badge--blue">{adm.program}</span>
+                          {adm.timing && <small style={{ display: 'block', color: '#64748b', marginTop: '2px' }}>{adm.timing}</small>}
+                        </td>
+                        <td>
+                          <strong>{adm.parentName || adm.primaryContactName || 'Parent'}</strong>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '3px' }}>
+                            <a href={`tel:${adm.guardianPhone}`} style={{ color: '#2563eb', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}>
+                              <FiPhone size={12} /> {adm.guardianPhone}
+                            </a>
+                            {phoneClean && (
+                              <a
+                                href={`https://wa.me/91${phoneClean}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: '#16a34a', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '3px', textDecoration: 'none' }}
+                                title="Chat on WhatsApp"
+                              >
+                                <FaWhatsapp size={12} /> WhatsApp
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className="admin-status"
+                            style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color }}
+                          >
+                            {cfg.label}
+                          </span>
+                        </td>
+                        <td>
+                          <small>{adm.createdAt ? new Date(adm.createdAt).toLocaleDateString('en-IN') : 'N/A'}</small>
+                        </td>
+                        <td>
+                          <Link to="/admin/admissions" className="btn btn--outline btn--sm" style={{ padding: '4px 10px', fontSize: '0.78rem' }}>
+                            <FiEye /> Review
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. Mobile Cards Feed (Visible only on mobile <= 768px) */}
+            <div className="admin-mobile-cards-feed admin-mobile-only">
+              {recentAdmissions.map(adm => {
+                const cfg = statusConfig[adm.status] || statusConfig.submitted;
+                const phoneClean = (adm.guardianPhone || '').replace(/\D/g, '');
+
+                return (
+                  <div key={adm._id || adm.id} className="admin-mobile-app-card">
+                    {/* Header: Ref No + Status Badge */}
+                    <div className="admin-mobile-app-card__head">
+                      <span className="admin-mobile-app-card__ref">
+                        {adm.applicationNumber || (adm._id || adm.id).slice(-6).toUpperCase()}
+                      </span>
+                      <span
+                        className="admin-status"
+                        style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color }}
+                      >
+                        {cfg.label}
+                      </span>
+                    </div>
+
+                    {/* Kid Name & Category */}
+                    <div className="admin-mobile-app-card__main">
+                      <h4 className="admin-mobile-app-card__name">{adm.childName}</h4>
+                      <div className="admin-mobile-app-card__tags">
+                        <span className="badge badge--blue">{adm.program}</span>
+                        {adm.timing && <span className="badge badge--yellow">⏰ {adm.timing}</span>}
+                        {adm.age && <span className="admin-tag-sub">Age: {adm.age}</span>}
+                      </div>
+                    </div>
+
+                    {/* Parent & Location */}
+                    <div className="admin-mobile-app-card__meta">
+                      <div>
+                        <span className="admin-mobile-label">Parent:</span>{' '}
+                        <strong>{adm.parentName || adm.primaryContactName || 'Parent'}</strong>
+                      </div>
+                      {(adm.location || adm.city) && (
+                        <div className="admin-mobile-location">
+                          <FiMapPin size={12} /> {adm.location || adm.city}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* One-Tap Mobile Action Bar */}
+                    <div className="admin-mobile-app-card__actions">
+                      <a
+                        href={`tel:${adm.guardianPhone}`}
+                        className="btn btn--outline btn--sm admin-mobile-action-btn"
+                        title="Call parent"
+                      >
+                        <FiPhone /> Call
+                      </a>
+
+                      {phoneClean && (
+                        <a
+                          href={`https://wa.me/91${phoneClean}?text=Hello%20from%20Chittukurumbakam%20Play%20School%20regarding%20${encodeURIComponent(adm.childName)}%27s%20admission`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn--outline btn--sm admin-mobile-action-btn admin-mobile-wa-btn"
+                          title="WhatsApp parent"
+                        >
+                          <FaWhatsapp /> WhatsApp
+                        </a>
+                      )}
+
+                      <Link
+                        to="/admin/admissions"
+                        className="btn btn--primary btn--sm admin-mobile-action-btn"
+                      >
+                        <FiEye /> Review
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>

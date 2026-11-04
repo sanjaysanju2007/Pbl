@@ -51,8 +51,12 @@ const Enquiry = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      await API.post('/enquiries', form);
-      setSuccess(true);
+      const response = await API.post('/enquiries', form);
+      if (response.data && response.data.success) {
+        setSuccess(true);
+      } else {
+        setErrors({ submit: response.data?.message || 'Something went wrong. Please try again.' });
+      }
     } catch (err) {
       setErrors({ submit: err.response?.data?.message || 'Something went wrong. Please try again.' });
     }

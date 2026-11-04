@@ -16,16 +16,17 @@ import {
   FiClipboard,
   FiUser,
   FiUsers,
-  FiPaperclip
+  FiMapPin,
+  FiChevronRight
 } from 'react-icons/fi';
+import { FaWhatsapp } from 'react-icons/fa';
 import API from '../../api';
 import './Admin.css';
 
 const statusConfig = {
-  submitted: { label: 'Submitted', color: '#2563eb', bg: '#eff6ff' },
+  submitted: { label: 'New', color: '#2563eb', bg: '#eff6ff' },
   pending: { label: 'Pending', color: '#f59e0b', bg: '#fef3c7' },
   under_review: { label: 'Under Review', color: '#0d9488', bg: '#f0fdfa' },
-  reviewed: { label: 'Reviewed', color: '#0d9488', bg: '#f0fdfa' },
   shortlisted: { label: 'Shortlisted', color: '#7c3aed', bg: '#f5f3ff' },
   approved: { label: 'Approved', color: '#16a34a', bg: '#f0fdf4' },
   rejected: { label: 'Rejected', color: '#dc2626', bg: '#fef2f2' },
@@ -94,7 +95,7 @@ const ManageAdmissions = () => {
     setUpdating(true);
     setUpdateMsg('');
     try {
-      const res = await API.patch(`/admissions/${selectedAdmission._id}`, {
+      const res = await API.patch(`/admissions/${selectedAdmission._id || selectedAdmission.id}`, {
         status: editStatus,
         adminNotes: adminNotes
       });
@@ -120,14 +121,14 @@ const ManageAdmissions = () => {
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FiClipboard style={{ color: 'var(--color-primary)' }} /> Manage Student Admissions
           </h2>
-          <p>Review, filter, shortlist, and track incoming parent admission applications.</p>
+          <p>Review, filter, shortlist, and contact applicants.</p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="admin-page-head__actions">
           <a
             href={`/api/admissions/export/csv?status=${statusFilter}&program=${programFilter}`}
             className="btn btn--outline btn--sm"
             download
-            title="Download matching applications to CSV"
+            title="Download applications to CSV"
           >
             <FiDownload /> Export CSV
           </a>
@@ -135,74 +136,88 @@ const ManageAdmissions = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="admin-card-section" style={{ background: '#fff', padding: '16px 20px', borderRadius: '16px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+      <div className="admin-card-section" style={{ marginBottom: '20px' }}>
         <form onSubmit={handleSearchSubmit} className="admin-filter-bar">
           <div className="admin-search-input-wrap">
             <FiSearch className="admin-search-icon" />
             <input
               type="text"
-              placeholder="Search by student name, ref number (CKP-...), phone, email..."
+              placeholder="Search kid name, ref number, parents name, phone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="form-input"
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="form-select"
-          >
-            <option value="">All Statuses</option>
-            <option value="submitted">Submitted / New</option>
-            <option value="under_review">Under Review</option>
-            <option value="shortlisted">Shortlisted</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="waitlisted">Waitlisted</option>
-          </select>
-
-          <select
-            value={programFilter}
-            onChange={(e) => setProgramFilter(e.target.value)}
-            className="form-select"
-          >
-            <option value="">All Programs</option>
-            <option value="Playgroup">Playgroup</option>
-            <option value="Nursery">Nursery</option>
-            <option value="LKG">LKG</option>
-            <option value="UKG">UKG</option>
-          </select>
-
-          <select
-            value={academicYearFilter}
-            onChange={(e) => setAcademicYearFilter(e.target.value)}
-            className="form-select"
-          >
-            <option value="">All Years</option>
-            <option value="2026-2027">2026–2027</option>
-            <option value="2025-2026">2025–2026</option>
-          </select>
-
-          <button type="submit" className="btn btn--primary btn--sm">
-            Search
-          </button>
-          {(search || statusFilter || programFilter || academicYearFilter) && (
-            <button
-              type="button"
-              onClick={() => { setSearch(''); setStatusFilter(''); setProgramFilter(''); setAcademicYearFilter(''); }}
-              className="btn btn--outline btn--sm"
+          <div className="admin-filter-selects">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="form-select"
             >
-              Reset
+              <option value="">All Statuses</option>
+              <option value="submitted">New / Submitted</option>
+              <option value="under_review">Under Review</option>
+              <option value="shortlisted">Shortlisted</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="waitlisted">Waitlisted</option>
+            </select>
+
+            <select
+              value={programFilter}
+              onChange={(e) => setProgramFilter(e.target.value)}
+              className="form-select"
+            >
+              <option value="">All Categories</option>
+              <option value="Playgroup">Playgroup</option>
+              <option value="Nursery">Nursery</option>
+              <option value="LKG">LKG</option>
+              <option value="UKG">UKG</option>
+              <option value="Daycare">Daycare</option>
+            </select>
+
+            <button type="submit" className="btn btn--primary btn--sm">
+              Search
             </button>
-          )}
+
+            {(search || statusFilter || programFilter || academicYearFilter) && (
+              <button
+                type="button"
+                onClick={() => { setSearch(''); setStatusFilter(''); setProgramFilter(''); setAcademicYearFilter(''); }}
+                className="btn btn--outline btn--sm"
+              >
+                Reset
+              </button>
+            )}
+          </div>
         </form>
+
+        {/* Quick Horizontal Status Chips on Mobile */}
+        <div className="admin-mobile-quick-chips admin-mobile-only">
+          {[
+            { val: '', label: 'All' },
+            { val: 'submitted', label: 'New' },
+            { val: 'under_review', label: 'Review' },
+            { val: 'shortlisted', label: 'Shortlist' },
+            { val: 'approved', label: 'Approved' }
+          ].map(chip => (
+            <button
+              key={chip.val}
+              type="button"
+              className={`admin-filter-chip ${statusFilter === chip.val ? 'active' : ''}`}
+              onClick={() => setStatusFilter(chip.val)}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Applications Table */}
-      <div className="admin-card-section" style={{ background: '#fff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0' }}>
+      {/* Applications Section */}
+      <div className="admin-card-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.88rem', color: '#64748b', fontWeight: 600 }}>
             Showing <strong>{admissions.length}</strong> of <strong>{pagination.total}</strong> applications
           </span>
         </div>
@@ -216,80 +231,176 @@ const ManageAdmissions = () => {
             <p>Try clearing filters or searching with a different keyword.</p>
           </div>
         ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Ref Number</th>
-                  <th>Student Name</th>
-                  <th>Program</th>
-                  <th>Parent / Guardian</th>
-                  <th>Contact Details</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {admissions.map(adm => {
-                  const cfg = statusConfig[adm.status] || statusConfig.submitted;
-                  const refNo = adm.applicationNumber || `CKP-${adm._id.slice(-6).toUpperCase()}`;
+          <>
+            {/* 1. Desktop / Tablet Table View */}
+            <div className="admin-table-wrap admin-desktop-only">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Ref Number</th>
+                    <th>Kid Name</th>
+                    <th>Category & Timing</th>
+                    <th>Parents & Location</th>
+                    <th>Contact Details</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {admissions.map(adm => {
+                    const cfg = statusConfig[adm.status] || statusConfig.submitted;
+                    const refNo = adm.applicationNumber || `CKP-${(adm._id || adm.id).slice(-6).toUpperCase()}`;
+                    const phoneClean = (adm.guardianPhone || '').replace(/\D/g, '');
 
-                  return (
-                    <tr key={adm._id}>
-                      <td>
-                        <strong style={{ fontFamily: 'monospace', color: '#1d4ed8' }}>
-                          {refNo}
-                        </strong>
-                      </td>
-                      <td>
-                        <strong>{adm.childName}</strong>
-                        {adm.gender && <small style={{ display: 'block', color: '#64748b' }}>{adm.gender}</small>}
-                      </td>
-                      <td>
+                    return (
+                      <tr key={adm._id || adm.id}>
+                        <td>
+                          <strong style={{ fontFamily: 'monospace', color: '#1d4ed8' }}>
+                            {refNo}
+                          </strong>
+                        </td>
+                        <td>
+                          <strong>{adm.childName}</strong>
+                          {adm.age && <small style={{ display: 'block', color: '#64748b' }}>Age: {adm.age}</small>}
+                        </td>
+                        <td>
+                          <span className="badge badge--blue">{adm.program}</span>
+                          {adm.timing && <small style={{ display: 'block', color: '#475569', marginTop: '3px', fontWeight: 600 }}>⏰ {adm.timing}</small>}
+                        </td>
+                        <td>
+                          <strong>{adm.parentName || adm.primaryContactName || adm.fatherName || 'Parent'}</strong>
+                          {(adm.location || adm.city) && <small style={{ display: 'block', color: 'var(--color-text-muted)' }}>📍 {adm.location || adm.city}</small>}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.82rem' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <a href={`tel:${adm.guardianPhone}`} style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <FiPhone size={12} /> {adm.guardianPhone}
+                              </a>
+                              {phoneClean && (
+                                <a
+                                  href={`https://wa.me/91${phoneClean}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: '#16a34a', textDecoration: 'none' }}
+                                  title="WhatsApp"
+                                >
+                                  <FaWhatsapp size={13} />
+                                </a>
+                              )}
+                            </div>
+                            <a href={`mailto:${adm.guardianEmail}`} style={{ color: 'var(--color-text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <FiMail size={12} /> {adm.guardianEmail}
+                            </a>
+                          </div>
+                        </td>
+                        <td>
+                          <span
+                            className="admin-status"
+                            style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color }}
+                          >
+                            {cfg.label}
+                          </span>
+                        </td>
+                        <td>
+                          <small>{adm.createdAt ? new Date(adm.createdAt).toLocaleDateString('en-IN') : 'N/A'}</small>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => openDetail(adm)}
+                            className="btn btn--outline btn--sm"
+                            style={{ padding: '5px 12px', fontSize: '0.8rem' }}
+                          >
+                            <FiEye /> Review
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. Mobile Cards View (Optimized for One-Hand Phone Use) */}
+            <div className="admin-mobile-cards-feed admin-mobile-only">
+              {admissions.map(adm => {
+                const cfg = statusConfig[adm.status] || statusConfig.submitted;
+                const refNo = adm.applicationNumber || `CKP-${(adm._id || adm.id).slice(-6).toUpperCase()}`;
+                const phoneClean = (adm.guardianPhone || '').replace(/\D/g, '');
+
+                return (
+                  <div key={adm._id || adm.id} className="admin-mobile-app-card">
+                    {/* Top Row: Ref ID + Status */}
+                    <div className="admin-mobile-app-card__head">
+                      <span className="admin-mobile-app-card__ref">{refNo}</span>
+                      <span
+                        className="admin-status"
+                        style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color }}
+                      >
+                        {cfg.label}
+                      </span>
+                    </div>
+
+                    {/* Kid Name & Category */}
+                    <div className="admin-mobile-app-card__main" onClick={() => openDetail(adm)}>
+                      <h4 className="admin-mobile-app-card__name">{adm.childName}</h4>
+                      <div className="admin-mobile-app-card__tags">
                         <span className="badge badge--blue">{adm.program}</span>
-                      </td>
-                      <td>
-                        {adm.primaryContactName || adm.fatherName || adm.motherName || 'Parent'}
-                        {adm.relationship && <small style={{ display: 'block', color: 'var(--color-text-muted)' }}>({adm.relationship})</small>}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '0.82rem' }}>
-                          <a href={`tel:${adm.guardianPhone}`} style={{ color: 'var(--color-text)', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <FiPhone size={12} /> {adm.guardianPhone}
-                          </a>
-                          <a href={`mailto:${adm.guardianEmail}`} style={{ color: 'var(--color-text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <FiMail size={12} /> {adm.guardianEmail}
-                          </a>
+                        {adm.timing && <span className="badge badge--yellow">⏰ {adm.timing}</span>}
+                        {adm.age && <span className="admin-tag-sub">Age: {adm.age}</span>}
+                      </div>
+                    </div>
+
+                    {/* Parent & Location */}
+                    <div className="admin-mobile-app-card__meta">
+                      <div>
+                        <span className="admin-mobile-label">Parent:</span>{' '}
+                        <strong>{adm.parentName || adm.primaryContactName || 'Parent'}</strong>
+                      </div>
+                      {(adm.location || adm.city) && (
+                        <div className="admin-mobile-location">
+                          <FiMapPin size={12} /> {adm.location || adm.city}
                         </div>
-                      </td>
-                      <td>
-                        <span
-                          className="admin-status"
-                          style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color }}
+                      )}
+                    </div>
+
+                    {/* Quick Touch Action Buttons */}
+                    <div className="admin-mobile-app-card__actions">
+                      <a
+                        href={`tel:${adm.guardianPhone}`}
+                        className="btn btn--outline btn--sm admin-mobile-action-btn"
+                        title="Call parent"
+                      >
+                        <FiPhone /> Call
+                      </a>
+
+                      {phoneClean && (
+                        <a
+                          href={`https://wa.me/91${phoneClean}?text=Hello%20from%20Chittukurumbakam%20Play%20School%20regarding%20${encodeURIComponent(adm.childName)}%27s%20admission`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn--outline btn--sm admin-mobile-action-btn admin-mobile-wa-btn"
+                          title="WhatsApp parent"
                         >
-                          {cfg.label}
-                        </span>
-                      </td>
-                      <td>
-                        <small>{new Date(adm.createdAt).toLocaleDateString('en-IN')}</small>
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          onClick={() => openDetail(adm)}
-                          className="btn btn--outline btn--sm"
-                          style={{ padding: '5px 12px', fontSize: '0.8rem' }}
-                        >
-                          <FiEye /> Review
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          <FaWhatsapp /> WhatsApp
+                        </a>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => openDetail(adm)}
+                        className="btn btn--primary btn--sm admin-mobile-action-btn"
+                      >
+                        <FiEye /> Review
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {/* Pagination */}
@@ -316,165 +427,166 @@ const ManageAdmissions = () => {
         )}
       </div>
 
-      {/* Detailed Application Modal / Drawer */}
+      {/* Detailed Application Modal / Mobile Sheet */}
       {isDrawerOpen && selectedAdmission && (
         <div className="admin-modal-backdrop" onClick={() => setIsDrawerOpen(false)}>
           <div className="admin-modal-drawer" onClick={(e) => e.stopPropagation()}>
             <div className="admin-modal-drawer__head">
               <div>
                 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase' }}>
-                  {selectedAdmission.applicationNumber || selectedAdmission._id}
+                  {selectedAdmission.applicationNumber || selectedAdmission._id || selectedAdmission.id}
                 </span>
-                <h3 style={{ margin: '4px 0 0 0', fontSize: '1.4rem' }}>
-                  {selectedAdmission.childName} — Admission Application
+                <h3 style={{ margin: '4px 0 0 0', fontSize: '1.25rem' }}>
+                  {selectedAdmission.childName}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(false)}
                 className="admin-modal-close"
+                aria-label="Close details"
               >
                 <FiX size={20} />
               </button>
             </div>
 
             <div className="admin-modal-drawer__body">
-              {updateMsg && (
-                <div style={{ padding: '10px 14px', borderRadius: '10px', background: '#dcfce7', color: '#166534', marginBottom: '16px', fontSize: '0.88rem' }}>
-                  <FiCheck /> {updateMsg}
+              {/* Status Update Quick Panel */}
+              <div className="admin-drawer-card admin-drawer-card--highlight">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <h4 style={{ margin: 0, color: '#1e3a8a', fontSize: '0.95rem' }}>Review & Update Status</h4>
+                  {updateMsg && (
+                    <span style={{ fontSize: '0.78rem', color: updateMsg.includes('success') ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
+                      {updateMsg}
+                    </span>
+                  )}
                 </div>
-              )}
 
-              {/* Status Update Control Card */}
-              <div className="admin-drawer-card" style={{ background: 'var(--color-accent-soft)', border: '1.5px solid var(--color-border)' }}>
-                <h4 style={{ margin: '0 0 10px', fontSize: '1rem', color: 'var(--color-text)' }}>Application Status & Internal Notes</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '12px', alignItems: 'flex-start' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '4px' }}>
-                      Status Workflow:
-                    </label>
-                    <select
-                      value={editStatus}
-                      onChange={(e) => setEditStatus(e.target.value)}
-                      className="form-select"
-                      style={{ background: 'var(--color-surface)' }}
-                    >
-                      <option value="submitted">Submitted (New Application)</option>
-                      <option value="under_review">Under Review (In Evaluation)</option>
-                      <option value="shortlisted">Shortlisted for Interaction</option>
-                      <option value="approved">Approved / Admission Granted</option>
-                      <option value="rejected">Rejected / Ineligible</option>
-                      <option value="waitlisted">Waitlisted</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                      Actions:
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleStatusUpdate}
-                      disabled={updating}
-                      className="btn btn--primary btn--sm"
-                      style={{ width: '100%', height: '38px' }}
-                    >
-                      {updating ? 'Saving...' : 'Save Status & Notes'}
-                    </button>
-                  </div>
+                <div className="admin-drawer-status-controls">
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value)}
+                    className="form-select"
+                    style={{ flex: 1, background: '#fff' }}
+                  >
+                    <option value="submitted">New / Submitted</option>
+                    <option value="under_review">Under Review</option>
+                    <option value="shortlisted">Shortlisted for Interaction</option>
+                    <option value="approved">Approved / Seat Offered</option>
+                    <option value="waitlisted">Waitlisted</option>
+                    <option value="rejected">Rejected / Ineligible</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={handleStatusUpdate}
+                    disabled={updating}
+                    className="btn btn--primary btn--sm"
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    {updating ? 'Saving...' : 'Save Status'}
+                  </button>
                 </div>
 
                 <div style={{ marginTop: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    Internal Administrative Notes (Not visible to parent):
+                  <label style={{ display: 'block', fontSize: '0.76rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                    Internal Admin Notes:
                   </label>
                   <textarea
                     rows="2"
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="Add observations from mentor call, age criteria notes, fee details..."
+                    placeholder="Add notes from parent call, fee discussions, special instructions..."
                     className="form-textarea"
-                    style={{ background: '#fff', fontSize: '0.85rem' }}
+                    style={{ background: '#fff', fontSize: '0.84rem' }}
                   />
                 </div>
               </div>
 
-              {/* Student Profile */}
+              {/* Kid Profile */}
               <div className="admin-drawer-card">
-                <h4 style={{ margin: '0 0 12px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiUser /> Student Details</h4>
+                <h4 style={{ margin: '0 0 12px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <FiUser /> Kid Profile
+                </h4>
                 <div className="admin-details-grid">
-                  <div><span>Full Name:</span> <strong>{selectedAdmission.childName}</strong></div>
-                  <div><span>Program:</span> <strong>{selectedAdmission.program}</strong></div>
-                  <div><span>Date of Birth:</span> <strong>{selectedAdmission.dateOfBirth ? new Date(selectedAdmission.dateOfBirth).toLocaleDateString('en-IN') : 'N/A'}</strong></div>
-                  <div><span>Gender:</span> <strong>{selectedAdmission.gender}</strong></div>
-                  <div><span>Academic Year:</span> <strong>{selectedAdmission.academicYear || '2026-2027'}</strong></div>
-                  <div><span>Blood Group:</span> <strong>{selectedAdmission.bloodGroup || 'Not specified'}</strong></div>
-                  <div><span>Allergies / Health:</span> <strong>{selectedAdmission.allergies || 'None reported'}</strong></div>
-                  <div><span>Previous Daycare:</span> <strong>{selectedAdmission.previousSchool || 'None'}</strong></div>
+                  <div><span>Kid Name:</span> <strong>{selectedAdmission.childName}</strong></div>
+                  <div><span>Category:</span> <strong>{selectedAdmission.program}</strong></div>
+                  <div>
+                    <span>Date of Birth:</span>{' '}
+                    <strong>
+                      {selectedAdmission.dateOfBirth
+                        ? (typeof selectedAdmission.dateOfBirth === 'string'
+                            ? selectedAdmission.dateOfBirth.split('T')[0]
+                            : new Date(selectedAdmission.dateOfBirth).toLocaleDateString('en-IN'))
+                        : 'N/A'}
+                    </strong>
+                  </div>
+                  <div><span>Age:</span> <strong>{selectedAdmission.age || 'N/A'}</strong></div>
+                  <div><span>Preferred Timing:</span> <strong>{selectedAdmission.timing || '9:00-12:30'}</strong></div>
+                  <div>
+                    <span>Previous School:</span>{' '}
+                    <strong>
+                      {selectedAdmission.hasPreviousSchool === 'Yes'
+                        ? (selectedAdmission.previousSchoolName || selectedAdmission.previousSchool || 'Yes')
+                        : (selectedAdmission.previousSchool || 'No')}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
-              {/* Parent Contact Details */}
+              {/* Parent Details with Immediate Phone Call & WhatsApp */}
               <div className="admin-drawer-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h4 style={{ margin: 0, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiUsers /> Parent / Guardian Contact</h4>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <h4 style={{ margin: 0, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <FiUsers /> Parents & Location
+                  </h4>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <a
                       href={`tel:${selectedAdmission.guardianPhone}`}
                       className="btn btn--outline btn--sm"
-                      style={{ padding: '4px 10px', fontSize: '0.75rem' }}
+                      style={{ padding: '4px 8px', fontSize: '0.74rem' }}
                     >
-                      <FiPhone /> Call Parent
+                      <FiPhone /> Call
                     </a>
-                    <a
-                      href={`mailto:${selectedAdmission.guardianEmail}?subject=Chittukurumbakam Play School Application (${selectedAdmission.applicationNumber || ''})`}
-                      className="btn btn--outline btn--sm"
-                      style={{ padding: '4px 10px', fontSize: '0.75rem' }}
-                    >
-                      <FiMail /> Send Email
-                    </a>
+                    {(selectedAdmission.guardianPhone || '').replace(/\D/g, '') && (
+                      <a
+                        href={`https://wa.me/91${(selectedAdmission.guardianPhone || '').replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn--outline btn--sm admin-mobile-wa-btn"
+                        style={{ padding: '4px 8px', fontSize: '0.74rem' }}
+                      >
+                        <FaWhatsapp /> Chat
+                      </a>
+                    )}
                   </div>
                 </div>
 
                 <div className="admin-details-grid">
-                  <div><span>Primary Contact:</span> <strong>{selectedAdmission.primaryContactName || selectedAdmission.fatherName || 'Parent'} ({selectedAdmission.relationship || 'Guardian'})</strong></div>
-                  <div><span>Father's Name:</span> <strong>{selectedAdmission.fatherName || 'N/A'}</strong></div>
-                  <div><span>Mother's Name:</span> <strong>{selectedAdmission.motherName || 'N/A'}</strong></div>
-                  <div><span>Phone:</span> <strong>{selectedAdmission.guardianPhone}</strong></div>
-                  <div><span>Alternate Phone:</span> <strong>{selectedAdmission.alternatePhone || 'None'}</strong></div>
-                  <div><span>Email:</span> <strong>{selectedAdmission.guardianEmail}</strong></div>
-                  <div><span>Address:</span> <strong>{selectedAdmission.address}, {selectedAdmission.city} {selectedAdmission.pincode}</strong></div>
-                  <div><span>Preferred Contact:</span> <strong>{selectedAdmission.preferredContactMethod || 'Phone Call'}</strong></div>
+                  <div><span>Parents Name:</span> <strong>{selectedAdmission.parentName || selectedAdmission.primaryContactName || 'Parent'}</strong></div>
+                  <div><span>Mobile:</span> <strong>{selectedAdmission.guardianPhone}</strong></div>
+                  <div><span>Mail ID:</span> <strong>{selectedAdmission.guardianEmail}</strong></div>
+                  <div><span>Location:</span> <strong>{selectedAdmission.location || selectedAdmission.address || 'Tiruppur'}</strong></div>
                 </div>
               </div>
 
-              {/* Uploaded Documents */}
-              <div className="admin-drawer-card">
-                <h4 style={{ margin: '0 0 10px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}><FiPaperclip /> Attached Documents ({selectedAdmission.documents?.length || 0})</h4>
-                {!selectedAdmission.documents || selectedAdmission.documents.length === 0 ? (
-                  <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>No documents were attached with this online application.</p>
-                ) : (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                    {selectedAdmission.documents.map((doc, idx) => (
-                      <a
-                        key={idx}
-                        href={`/${doc.path}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn--outline btn--sm"
-                        style={{ fontSize: '0.82rem' }}
-                      >
-                        <FiFileText /> {doc.name || `Document #${idx + 1}`}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Additional Comments or Questions */}
+              {selectedAdmission.additionalComments && (
+                <div className="admin-drawer-card">
+                  <h4 style={{ margin: '0 0 10px', color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <FiFileText /> Additional Comments or Questions
+                  </h4>
+                  <p style={{ color: '#334155', fontSize: '0.88rem', margin: 0, lineHeight: 1.6 }}>
+                    {selectedAdmission.additionalComments}
+                  </p>
+                </div>
+              )}
 
-              {/* Status History & Notifications */}
+              {/* Status History */}
               <div className="admin-drawer-card">
-                <h4 style={{ margin: '0 0 10px', color: '#1e3a8a' }}>⏱️ Status Timeline & Email Notifications</h4>
-                <div style={{ fontSize: '0.84rem', color: '#64748b', marginBottom: '8px' }}>
-                  <span>Submission Date: <strong>{new Date(selectedAdmission.createdAt).toLocaleString('en-IN')}</strong></span>
+                <h4 style={{ margin: '0 0 10px', color: '#1e3a8a' }}>⏱️ Status Timeline</h4>
+                <div style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '8px' }}>
+                  <span>Submission Date: <strong>{selectedAdmission.createdAt ? new Date(selectedAdmission.createdAt).toLocaleString('en-IN') : 'N/A'}</strong></span>
                 </div>
                 {selectedAdmission.statusHistory && selectedAdmission.statusHistory.length > 0 && (
                   <ul style={{ paddingLeft: '16px', margin: '8px 0 0', fontSize: '0.82rem' }}>

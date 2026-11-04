@@ -22,9 +22,18 @@ const app = express();
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Rate limiting
+const isDev = process.env.NODE_ENV !== 'production';
+
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: isDev ? 5000 : 1500,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    if (isDev) return true;
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost');
+  },
   message: { success: false, message: 'Too many requests, please try again later.' }
 });
 app.use('/api/', limiter);

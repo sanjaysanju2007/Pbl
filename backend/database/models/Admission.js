@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const admissionSchema = new mongoose.Schema({
-  // Unique Application Reference ID (e.g., CKP-2025-48192)
+  // Unique Application Reference ID (e.g., CKP-2026-48192)
   applicationNumber: {
     type: String,
     unique: true,
@@ -10,7 +10,7 @@ const admissionSchema = new mongoose.Schema({
     uppercase: true
   },
 
-  // Section A: Student Details
+  // Kid details
   childName: {
     type: String,
     required: [true, 'Student full name is required'],
@@ -21,15 +21,17 @@ const admissionSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'Date of birth is required']
   },
+  age: {
+    type: String,
+    trim: true
+  },
   gender: {
     type: String,
-    required: [true, 'Gender is required'],
-    enum: ['Male', 'Female', 'Other']
+    default: 'Not Specified'
   },
   program: {
     type: String,
-    required: [true, 'Program is required'],
-    enum: ['Playgroup', 'Nursery', 'LKG', 'UKG']
+    required: [true, 'Category / Program is required']
   },
   academicYear: {
     type: String,
@@ -39,26 +41,9 @@ const admissionSchema = new mongoose.Schema({
       return `${year}-${year + 1}`;
     }
   },
-  preferredStartDate: {
-    type: Date
-  },
-  bloodGroup: {
-    type: String,
-    trim: true,
-    uppercase: true
-  },
-  allergies: {
-    type: String,
-    trim: true
-  },
 
-  // Section B: Parent / Guardian Details
-  fatherName: {
-    type: String,
-    trim: true,
-    maxlength: 100
-  },
-  motherName: {
+  // Parents / Guardian details
+  parentName: {
     type: String,
     trim: true,
     maxlength: 100
@@ -68,14 +53,9 @@ const admissionSchema = new mongoose.Schema({
     trim: true,
     maxlength: 100
   },
-  relationship: {
-    type: String,
-    enum: ['Father', 'Mother', 'Guardian', 'Other'],
-    default: 'Father'
-  },
   guardianPhone: {
     type: String,
-    required: [true, 'Primary contact number is required'],
+    required: [true, 'Mobile number is required'],
     match: [/^[6-9]\d{9}$/, 'Please enter a valid 10-digit Indian mobile number']
   },
   guardianEmail: {
@@ -85,47 +65,59 @@ const admissionSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  alternatePhone: {
+  location: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: 500
   },
   address: {
     type: String,
-    required: [true, 'Residential address is required'],
     trim: true,
-    maxlength: 500
+    maxlength: 500,
+    default: function () {
+      return this.location || 'Tiruppur';
+    }
   },
   city: {
     type: String,
     trim: true,
     default: 'Tiruppur'
   },
-  pincode: {
-    type: String,
-    trim: true
-  },
 
-  // Section C: Additional Information
-  previousSchool: {
+  // Previous school / daycare
+  hasPreviousSchool: {
+    type: String,
+    enum: ['Yes', 'No', 'yes', 'no', ''],
+    default: 'No'
+  },
+  previousSchoolName: {
     type: String,
     trim: true,
     maxlength: 150
   },
-  specialConsiderations: {
+  previousSchool: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: 150,
+    default: function () {
+      return this.previousSchoolName || '';
+    }
   },
-  preferredContactMethod: {
+
+  // Timing
+  timing: {
     type: String,
-    enum: ['Phone Call', 'Email', 'WhatsApp'],
-    default: 'Phone Call'
+    trim: true,
+    default: '9:00-12:30'
   },
+
+  // Additional comments or questions
   additionalComments: {
     type: String,
     trim: true
   },
 
-  // Section D: Uploaded Documents
+  // Uploaded Documents (optional / backward compatibility)
   documents: [{
     name: String,
     path: String,
@@ -134,7 +126,7 @@ const admissionSchema = new mongoose.Schema({
     uploadedAt: { type: Date, default: Date.now }
   }],
 
-  // Section E: Admission Lifecycle & Workflow
+  // Admission Lifecycle & Workflow
   status: {
     type: String,
     enum: ['submitted', 'pending', 'under_review', 'reviewed', 'shortlisted', 'approved', 'rejected', 'waitlisted'],
@@ -167,9 +159,11 @@ admissionSchema.pre('save', function (next) {
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
     this.applicationNumber = `CKP-${year}-${randomSuffix}`;
   }
-  // Fill primaryContactName fallback if only father/mother name supplied
   if (!this.primaryContactName) {
-    this.primaryContactName = this.fatherName || this.motherName || 'Parent / Guardian';
+    this.primaryContactName = this.parentName || 'Parent / Guardian';
+  }
+  if (!this.address) {
+    this.address = this.location || 'Tiruppur';
   }
   next();
 });

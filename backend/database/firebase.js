@@ -11,7 +11,10 @@ let isConnected = false;
  */
 const initFirebase = () => {
   if (admin.getApps().length > 0) {
-    db = getFirestore();
+    if (!db) {
+      db = getFirestore();
+      db.settings({ ignoreUndefinedProperties: true });
+    }
     isConnected = true;
     return db;
   }
@@ -30,6 +33,7 @@ const initFirebase = () => {
           credential: admin.cert(serviceAccount)
         });
         db = getFirestore();
+        db.settings({ ignoreUndefinedProperties: true });
         isConnected = true;
         console.log(`🔥 Firebase Admin SDK Initialized Successfully`);
         console.log(`📦 Firestore Connected (Project: ${serviceAccount.project_id})`);
@@ -47,6 +51,7 @@ const initFirebase = () => {
         })
       });
       db = getFirestore();
+      db.settings({ ignoreUndefinedProperties: true });
       isConnected = true;
       console.log(`🔥 Firebase Admin SDK Initialized from Environment Variables`);
       console.log(`📦 Firestore Connected (Project: ${process.env.FIREBASE_PROJECT_ID})`);
