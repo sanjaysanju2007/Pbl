@@ -81,7 +81,19 @@ const AdmissionForm = () => {
     }));
 
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors(prev => ({ ...prev, [name]: '', submit: '' }));
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const numericVal = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setForm(prev => ({
+      ...prev,
+      guardianPhone: numericVal
+    }));
+
+    if (errors.guardianPhone || errors.submit) {
+      setErrors(prev => ({ ...prev, guardianPhone: '', submit: '' }));
     }
   };
 
@@ -135,7 +147,7 @@ const AdmissionForm = () => {
     if (!form.guardianPhone.trim()) {
       newErrors.guardianPhone = 'Mobile number is required';
     } else if (!form.guardianPhone.match(/^[6-9]\d{9}$/)) {
-      newErrors.guardianPhone = 'Please enter a valid 10-digit Indian mobile number';
+      newErrors.guardianPhone = 'Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9)';
     }
 
     if (!form.program) {
@@ -209,9 +221,18 @@ const AdmissionForm = () => {
       }
     } catch (err) {
       console.error('Admission submit error:', err);
-      setErrors({
-        submit: err.response?.data?.message || 'Unable to submit application at this time. Please check your network and try again.'
-      });
+      const errorMsg = err.response?.data?.message || 'Unable to submit application at this time. Please check your network and try again.';
+      if (err.response?.status === 409) {
+        setErrors({
+          submit: errorMsg,
+          guardianPhone: 'This mobile number is already registered'
+        });
+      } else {
+        setErrors({
+          submit: errorMsg
+        });
+      }
+      window.scrollTo({ top: 300, behavior: 'smooth' });
     } finally {
       setSubmitting(false);
     }
@@ -241,13 +262,17 @@ const AdmissionForm = () => {
                 </p>
               </div>
 
-              {/* Unique Reference Number Banner */}
-              <div className="admission-ref-box">
-                <span className="admission-ref-label">Your Application Reference Number</span>
-                <span className="admission-ref-number">{submittedData.applicationNumber}</span>
-                <span className="admission-ref-note">
-                  Please save this reference number. A confirmation email has been sent to <strong>{submittedData.guardianEmail}</strong>.
+              {/* Registered Mobile Tracking Banner */}
+              <div className="admission-mobile-track-banner" style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0', borderRadius: '16px', padding: '20px 24px', margin: '20px 0', textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: '800', color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  📱 Track Anytime With Your Mobile Number
                 </span>
+                <h3 style={{ fontSize: '1.5rem', color: '#0f172a', margin: '8px 0 6px 0', fontWeight: '800' }}>
+                  {submittedData.guardianPhone}
+                </h3>
+                <p style={{ margin: 0, fontSize: '0.92rem', color: '#475569' }}>
+                  No reference code needed! Simply enter this mobile number on our portal to check your child's admission status.
+                </p>
               </div>
 
               {/* Summary Details */}
@@ -370,7 +395,7 @@ const AdmissionForm = () => {
                   name="childName"
                   value={form.childName}
                   onChange={handleChange}
-                  placeholder="Enter child's full name (e.g. Aarav Sharma)"
+                  placeholder="Enter child's full name"
                   className={`form-input ${errors.childName ? 'error' : ''}`}
                 />
                 {errors.childName && <span className="form-error">{errors.childName}</span>}
@@ -404,7 +429,7 @@ const AdmissionForm = () => {
                     name="age"
                     value={form.age}
                     onChange={handleChange}
-                    placeholder="Auto-calculated (e.g. 2 Years 6 Months)"
+                    placeholder="Auto-calculated from DOB"
                     className={`form-input ${errors.age ? 'error' : ''}`}
                   />
                   {errors.age && <span className="form-error">{errors.age}</span>}
@@ -422,7 +447,7 @@ const AdmissionForm = () => {
                   name="parentName"
                   value={form.parentName}
                   onChange={handleChange}
-                  placeholder="Father / Mother / Guardian full name (e.g. Priya & Rajesh)"
+                  placeholder="Enter parent / guardian full name"
                   className={`form-input ${errors.parentName ? 'error' : ''}`}
                 />
                 {errors.parentName && <span className="form-error">{errors.parentName}</span>}
@@ -438,9 +463,9 @@ const AdmissionForm = () => {
                   type="tel"
                   name="guardianPhone"
                   value={form.guardianPhone}
-                  onChange={handleChange}
+                  onChange={handlePhoneChange}
                   maxLength={10}
-                  placeholder="10-digit mobile number (e.g. 9876543210)"
+                  placeholder="Enter 10-digit mobile number"
                   className={`form-input ${errors.guardianPhone ? 'error' : ''}`}
                 />
                 {errors.guardianPhone && <span className="form-error">{errors.guardianPhone}</span>}
@@ -478,7 +503,7 @@ const AdmissionForm = () => {
                   name="location"
                   value={form.location}
                   onChange={handleChange}
-                  placeholder="Area / Street / Town (e.g. Palaniandavar Nagar, Tiruppur)"
+                  placeholder="Enter location / area / town"
                   className={`form-input ${errors.location ? 'error' : ''}`}
                 />
                 {errors.location && <span className="form-error">{errors.location}</span>}
@@ -495,7 +520,7 @@ const AdmissionForm = () => {
                   name="guardianEmail"
                   value={form.guardianEmail}
                   onChange={handleChange}
-                  placeholder="parent@example.com"
+                  placeholder="Enter parent email address"
                   className={`form-input ${errors.guardianEmail ? 'error' : ''}`}
                 />
                 {errors.guardianEmail && <span className="form-error">{errors.guardianEmail}</span>}

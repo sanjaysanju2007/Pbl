@@ -152,7 +152,7 @@ const sendAdmissionAcknowledgment = async (admission) => {
  * Send admin notification email
  */
 const sendAdminNotification = async (type, data) => {
-  const adminEmail = process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER || 'admin@chittukurumbakam.com';
+  const adminEmail = process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER || 'info@chittukurumbakam.com';
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
   const appNo = data.applicationNumber || 'N/A';
 

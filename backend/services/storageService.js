@@ -156,6 +156,29 @@ module.exports = {
   isDbConnected,
   isMongoConnected,
 
+  findAdmissionsByPhone: (phoneOrContact) => {
+    const raw = String(phoneOrContact || '').trim();
+    const digits = raw.replace(/\D/g, '');
+    const last10 = digits.length >= 10 ? digits.slice(-10) : digits;
+    const email = raw.toLowerCase();
+    const appNo = raw.toUpperCase();
+
+    return memoryAdmissions.filter(a => {
+      const aPhone = String(a.guardianPhone || a.phone || a.mobile || '').replace(/\D/g, '');
+      const aEmail = String(a.guardianEmail || a.email || '').toLowerCase();
+      const aAppNo = String(a.applicationNumber || '').toUpperCase();
+
+      if (last10 && last10.length >= 6) {
+        if (aPhone === digits || (last10.length === 10 && aPhone.endsWith(last10)) || aPhone.includes(digits) || digits.includes(aPhone)) {
+          return true;
+        }
+      }
+      if (raw.includes('@') && aEmail === email) return true;
+      if (raw.startsWith('CKP-') && aAppNo === appNo) return true;
+      return false;
+    });
+  },
+
   findTrackAdmission: (applicationNumber, contact) => {
     const cleanApp = applicationNumber.trim().toUpperCase();
     const cleanContact = contact.trim().toLowerCase();
@@ -170,6 +193,16 @@ module.exports = {
 
   getAllAdmissions: ({ search, status, program, academicYear, page = 1, limit = 20 }) => {
     let filtered = [...memoryAdmissions];
+
+    // Deduplicate in memory to prevent duplicate cards
+    const seen = new Set();
+    filtered = filtered.filter(a => {
+      const key = a.applicationNumber || a.guardianPhone || a._id;
+      if (!key) return true;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     if (search) {
       const q = search.trim().toLowerCase();
@@ -207,21 +240,69 @@ module.exports = {
     return memoryAdmissions.find(a => a._id === id || a.applicationNumber === id);
   },
 
-  addAdmission: (item) => {
+  syncToMemoryOnly: (item) => {
+    if (!item) return null;
+    const appNo = item.applicationNumber;
+    const phone = (item.guardianPhone || item.mobile || item.phone || '').replace(/\D/g, '');
+    const cleanPhone = phone.length >= 10 ? phone.slice(-10) : phone;
+
+    const existingIdx = memoryAdmissions.findIndex(a => {
+      if (appNo && a.applicationNumber === appNo) return true;
+      if (cleanPhone) {
+        const aPhone = (a.guardianPhone || a.mobile || a.phone || '').replace(/\D/g, '');
+        if (aPhone.endsWith(cleanPhone) || cleanPhone.endsWith(aPhone)) return true;
+      }
+      if (item.id && (a.id === item.id || a._id === item.id)) return true;
+      if (item._id && (a._id === item._id || a.id === item._id)) return true;
+      return false;
+    });
+
     const newAdm = {
-      _id: item._id || `adm-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      _id: item.applicationNumber || item._id || item.id || (existingIdx !== -1 ? memoryAdmissions[existingIdx]._id : `adm-${Date.now()}`),
+      id: item.applicationNumber || item.id || item._id || (existingIdx !== -1 ? memoryAdmissions[existingIdx].id : `adm-${Date.now()}`),
+      ...item,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (existingIdx !== -1) {
+      memoryAdmissions[existingIdx] = { ...memoryAdmissions[existingIdx], ...newAdm };
+    } else {
+      memoryAdmissions.unshift(newAdm);
+    }
+
+    persistToFile();
+    return newAdm;
+  },
+
+  addAdmission: (item) => {
+    if (!item) return null;
+    const appNo = item.applicationNumber;
+    const phone = (item.guardianPhone || item.mobile || item.phone || '').replace(/\D/g, '');
+    const cleanPhone = phone.length >= 10 ? phone.slice(-10) : phone;
+
+    const existingIdx = memoryAdmissions.findIndex(a => {
+      if (appNo && a.applicationNumber === appNo) return true;
+      if (cleanPhone) {
+        const aPhone = (a.guardianPhone || a.mobile || a.phone || '').replace(/\D/g, '');
+        if (aPhone.endsWith(cleanPhone) || cleanPhone.endsWith(aPhone)) return true;
+      }
+      return false;
+    });
+
+    const newAdm = {
+      _id: item.applicationNumber || item._id || item.id || `adm-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      id: item.applicationNumber || item.id || item._id || `adm-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       createdAt: item.createdAt || new Date(),
       updatedAt: new Date(),
       ...item
     };
-    memoryAdmissions.unshift(newAdm);
-    persistToFile();
 
-    if (isFirebaseConnected()) {
-      admissionsRepo.create(newAdm, newAdm.applicationNumber || newAdm._id).catch(e => {
-        console.warn('Firestore admission sync notice:', e.message);
-      });
+    if (existingIdx !== -1) {
+      memoryAdmissions[existingIdx] = { ...memoryAdmissions[existingIdx], ...newAdm };
+    } else {
+      memoryAdmissions.unshift(newAdm);
     }
+    persistToFile();
 
     return newAdm;
   },

@@ -62,7 +62,17 @@ const ManageAdmissions = () => {
       if (academicYearFilter) params.academicYear = academicYearFilter;
 
       const res = await API.get('/admissions', { params });
-      setAdmissions(res.data.data || []);
+      const rawData = res.data.data || [];
+      const seen = new Set();
+      const uniqueAdmissions = [];
+      rawData.forEach(item => {
+        const key = item.applicationNumber || item._id || item.id;
+        if (!key || !seen.has(key)) {
+          if (key) seen.add(key);
+          uniqueAdmissions.push(item);
+        }
+      });
+      setAdmissions(uniqueAdmissions);
       setPagination(res.data.pagination || { page: 1, pages: 1, total: 0 });
     } catch (err) {
       console.error('Failed to fetch admissions:', err);

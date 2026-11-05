@@ -357,22 +357,8 @@ const Navbar = () => {
             </ul>
           </div>
 
-          {/* Action CTAs (Call + Apply) */}
+          {/* Action CTAs (Portal + Apply) */}
           <div className="navbar__actions">
-            <a
-              href="tel:+919952285838"
-              className="navbar__call-btn"
-              title="Call Chittukurumbakam Play School"
-            >
-              <div className="navbar__call-icon-wrap">
-                <FiPhone size={14} />
-              </div>
-              <div className="navbar__call-details">
-                <span className="navbar__call-label">Quick Call</span>
-                <span className="navbar__call-number">99522 85838</span>
-              </div>
-            </a>
-
             <Link
               to="/login"
               className="navbar__portal-btn"

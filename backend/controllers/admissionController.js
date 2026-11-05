@@ -27,7 +27,9 @@ exports.createAdmission = async (req, res) => {
     const dateOfBirth = req.body.dateOfBirth;
     const age = (req.body.age || '').trim();
     const parentName = (req.body.parentName || req.body.primaryContactName || req.body.fatherName || req.body.motherName || '').trim();
-    const guardianPhone = (req.body.guardianPhone || req.body.mobile || '').trim();
+    const rawPhone = (req.body.guardianPhone || req.body.mobile || '').toString().trim();
+    const cleanDigits = rawPhone.replace(/\D/g, '');
+    const standardPhone = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
     const program = req.body.program || req.body.category || 'Playgroup';
     const location = (req.body.location || req.body.address || '').trim();
     const guardianEmail = (req.body.guardianEmail || req.body.email || '').trim().toLowerCase();
@@ -36,14 +38,76 @@ exports.createAdmission = async (req, res) => {
     const timing = req.body.timing || '9:00-12:30';
     const additionalComments = (req.body.additionalComments || '').trim();
 
+    // 2a. Validate mobile number: Must be 10 digits starting with 6, 7, 8, or 9
+    if (!standardPhone || !/^[6-9]\d{9}$/.test(standardPhone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9).'
+      });
+    }
+
+    // 2b. Prevent duplicate submissions with the same phone number
+    let existingAdmission = null;
+
+    // Check in Firestore
+    if (isFirebaseConnected()) {
+      try {
+        const docSnap = await admissionsRepo.col.doc(standardPhone).get();
+        if (docSnap.exists) {
+          existingAdmission = admissionsRepo._normalizeDoc(docSnap);
+        } else {
+          const querySnap = await admissionsRepo.col.where('guardianPhone', '==', standardPhone).limit(1).get();
+          if (!querySnap.empty) {
+            existingAdmission = admissionsRepo._normalizeDoc(querySnap.docs[0]);
+          }
+        }
+      } catch (fErr) {
+        console.warn('Firestore duplicate check warning:', fErr.message);
+      }
+    }
+
+    // Check in local cache / storage
+    if (!existingAdmission && typeof storageService.findAdmissionsByPhone === 'function') {
+      const localMatches = storageService.findAdmissionsByPhone(standardPhone);
+      if (localMatches && localMatches.length > 0) {
+        existingAdmission = localMatches[0];
+      }
+    }
+
+    // Check in MongoDB if connected
+    if (!existingAdmission && storageService.isMongoConnected()) {
+      try {
+        existingAdmission = await Admission.findOne({
+          $or: [
+            { guardianPhone: standardPhone },
+            { mobile: standardPhone },
+            { _id: standardPhone }
+          ]
+        });
+      } catch (mErr) {
+        console.warn('MongoDB duplicate check warning:', mErr.message);
+      }
+    }
+
+    // If already registered, return HTTP 409 Conflict error
+    if (existingAdmission) {
+      return res.status(409).json({
+        success: false,
+        message: `An admission application has already been submitted with mobile number ${standardPhone} for ${existingAdmission.childName || 'this student'}. You cannot register the same mobile number twice. Please use Track Admission to check status.`
+      });
+    }
+
     const admissionData = {
       ...req.body,
+      id: standardPhone,
+      _id: standardPhone,
       childName,
       dateOfBirth,
       age,
       parentName,
       primaryContactName: parentName,
-      guardianPhone,
+      guardianPhone: standardPhone,
+      mobile: standardPhone,
       program,
       location,
       address: location,
@@ -64,6 +128,8 @@ exports.createAdmission = async (req, res) => {
       const randomSuffix = Math.floor(10000 + Math.random() * 90000);
       admissionData.applicationNumber = `CKP-${year}-${randomSuffix}`;
     }
+    admissionData.id = admissionData.applicationNumber;
+    admissionData._id = admissionData.applicationNumber;
 
     // Default status is 'submitted'
     if (!admissionData.status) {
@@ -84,14 +150,14 @@ exports.createAdmission = async (req, res) => {
 
     let savedAdmission = null;
 
-    // 3. PERSISTENCE: Primary database is Firebase Firestore
+    // 3. PERSISTENCE: Primary database is Firebase Firestore (Stored directly with phone number as Document ID)
     if (isFirebaseConnected()) {
       try {
-        console.log(`📝 Persisting admission application ${admissionData.applicationNumber} to Firebase Firestore...`);
+        console.log(`📝 Persisting admission application for mobile ${standardPhone} to Firebase Firestore...`);
         savedAdmission = await admissionsRepo.create(admissionData, admissionData.applicationNumber);
-        console.log(`✅ Successfully saved admission ${admissionData.applicationNumber} to Firestore (Doc ID: ${savedAdmission.id})`);
+        console.log(`✅ Successfully saved admission ${standardPhone} to Firestore (Doc ID: ${savedAdmission.id})`);
       } catch (firestoreErr) {
-        console.error(`🔴 Firestore write failed for admission ${admissionData.applicationNumber}:`, firestoreErr);
+        console.error(`🔴 Firestore write failed for admission ${standardPhone}:`, firestoreErr);
         return res.status(500).json({
           success: false,
           message: 'Failed to save admission application to Firestore cloud database. Please try again.',
@@ -117,7 +183,7 @@ exports.createAdmission = async (req, res) => {
 
     // Also sync to memory cache for fast offline retrieval/backup
     try {
-      storageService.addAdmission(savedAdmission || admissionData);
+      storageService.syncToMemoryOnly(savedAdmission || admissionData);
     } catch (e) {
       // Non-blocking cache sync
     }
@@ -188,91 +254,165 @@ exports.createAdmission = async (req, res) => {
   }
 };
 
-// @desc    Track single admission status for parents
+// @desc    Track admission status for parents by phone number (or email / reference number)
 // @route   POST /api/admissions/track or GET /api/admissions/track
 // @access  Public
 exports.trackAdmission = async (req, res) => {
   try {
-    const applicationNumber = req.body?.applicationNumber || req.query?.applicationNumber;
-    const contact = req.body?.contact || req.query?.contact;
+    const rawInput = (
+      req.body?.phone ||
+      req.body?.mobile ||
+      req.body?.contact ||
+      req.query?.phone ||
+      req.query?.mobile ||
+      req.query?.contact ||
+      req.body?.applicationNumber ||
+      req.query?.applicationNumber ||
+      ''
+    ).toString().trim();
 
-    if (!applicationNumber || !contact) {
+    if (!rawInput) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide both Application Reference Number and registered Phone or Email.'
+        message: 'Please provide your registered 10-digit mobile number to track admission status.'
       });
     }
 
-    const cleanAppNo = applicationNumber.trim().toUpperCase();
-    const cleanContact = contact.trim().toLowerCase();
-    const cleanPhoneDigits = contact.replace(/\D/g, '');
+    const cleanDigits = rawInput.replace(/\D/g, '');
+    const standardPhone = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
+    const cleanEmail = rawInput.toLowerCase();
+    const cleanAppNo = rawInput.toUpperCase();
 
-    let admission = null;
+    // If input is digits, validate 10-digit Indian phone format
+    if (cleanDigits.length > 0 && (cleanDigits.length !== 10 || !/^[6-9]\d{9}$/.test(standardPhone))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9).'
+      });
+    }
 
-    // 1. Try Firestore first if connected
+    let matchingAdmissions = [];
+
+    // Helper to format safe response data for parent
+    const formatAdmissionForParent = (adm) => ({
+      id: adm.id || adm._id || adm.guardianPhone,
+      _id: adm._id || adm.id || adm.guardianPhone,
+      applicationNumber: adm.applicationNumber || `CKP-${adm.guardianPhone}`,
+      childName: adm.childName,
+      dateOfBirth: adm.dateOfBirth,
+      age: adm.age,
+      parentName: adm.parentName || adm.primaryContactName || adm.fatherName || adm.motherName,
+      guardianPhone: adm.guardianPhone || adm.phone || adm.mobile,
+      program: adm.program || adm.category,
+      timing: adm.timing,
+      location: adm.location || adm.address,
+      guardianEmail: adm.guardianEmail || adm.email,
+      hasPreviousSchool: adm.hasPreviousSchool || (adm.previousSchool && adm.previousSchool !== 'None' ? 'Yes' : 'No'),
+      previousSchoolName: adm.previousSchoolName || adm.previousSchool || '',
+      previousSchool: adm.previousSchool || adm.previousSchoolName || 'None',
+      additionalComments: adm.additionalComments || adm.comments || '',
+      academicYear: adm.academicYear || '2026-2027',
+      status: adm.status || 'submitted',
+      submissionDate: adm.createdAt,
+      createdAt: adm.createdAt,
+      updatedAt: adm.updatedAt,
+      statusHistory: adm.statusHistory || []
+    });
+
+    // 1. FAST FIRESTORE DIRECT LOOKUP (Retrieves using phone number as doc key)
     if (isFirebaseConnected()) {
       try {
-        admission = await admissionsRepo.findById(cleanAppNo);
-        if (!admission) {
-          admission = await admissionsRepo.findOne('applicationNumber', cleanAppNo);
+        if (standardPhone && /^[6-9]\d{9}$/.test(standardPhone) && admissionsRepo.col) {
+          // Direct O(1) Document read by phone number ID
+          const docSnap = await admissionsRepo.col.doc(standardPhone).get();
+          if (docSnap.exists) {
+            matchingAdmissions.push(admissionsRepo._normalizeDoc(docSnap));
+          } else {
+            // Also check guardianPhone or mobile fields for docs created earlier
+            const byPhoneSnap = await admissionsRepo.col.where('guardianPhone', '==', standardPhone).limit(5).get();
+            if (!byPhoneSnap.empty) {
+              byPhoneSnap.docs.forEach(d => matchingAdmissions.push(admissionsRepo._normalizeDoc(d)));
+            } else {
+              const byMobileSnap = await admissionsRepo.col.where('mobile', '==', standardPhone).limit(5).get();
+              if (!byMobileSnap.empty) {
+                byMobileSnap.docs.forEach(d => matchingAdmissions.push(admissionsRepo._normalizeDoc(d)));
+              }
+            }
+          }
         }
       } catch (fErr) {
-        console.warn('Firestore track lookup error:', fErr.message);
+        console.warn('Firestore direct phone lookup error:', fErr.message);
       }
     }
 
-    // 2. Try MongoDB if connected and not found in Firestore
-    if (!admission && storageService.isMongoConnected()) {
+    // 2. FAST LOCAL STORAGE CHECK (Reliable and instantaneous)
+    try {
+      if (typeof storageService.findAdmissionsByPhone === 'function') {
+        const localMatches = storageService.findAdmissionsByPhone(standardPhone || rawInput);
+        if (localMatches && localMatches.length > 0) {
+          matchingAdmissions.push(...localMatches);
+        }
+      }
+    } catch (localErr) {
+      console.warn('Local storage track error:', localErr.message);
+    }
+
+    // 3. Try MongoDB if connected and no matches yet
+    if (matchingAdmissions.length === 0 && storageService.isMongoConnected()) {
       try {
-        admission = await Admission.findOne({
-          applicationNumber: cleanAppNo
-        }).select('-documents.path -adminNotes');
+        const queryOr = [];
+        if (standardPhone) {
+          queryOr.push({ guardianPhone: standardPhone });
+          queryOr.push({ mobile: standardPhone });
+          queryOr.push({ _id: standardPhone });
+        }
+        if (rawInput.includes('@')) {
+          queryOr.push({ guardianEmail: cleanEmail });
+        }
+        if (rawInput.startsWith('CKP-')) {
+          queryOr.push({ applicationNumber: cleanAppNo });
+        }
+
+        if (queryOr.length > 0) {
+          const mongoDocs = await Admission.find({ $or: queryOr })
+            .select('-documents.path -adminNotes')
+            .sort({ createdAt: -1 });
+          if (mongoDocs && mongoDocs.length > 0) {
+            matchingAdmissions.push(...mongoDocs);
+          }
+        }
       } catch (dbErr) {
-        console.warn('MongoDB track lookup error:', dbErr.message);
+        console.warn('MongoDB track error:', dbErr.message);
       }
     }
 
-    // 3. Fallback to storageService
-    if (!admission) {
-      admission = storageService.findTrackAdmission(cleanAppNo, cleanContact);
-    }
-
-    // Verify parent contact matches for privacy
-    if (admission) {
-      const emailMatch = (admission.guardianEmail || '').trim().toLowerCase() === cleanContact;
-      const phoneDigits = (admission.guardianPhone || '').replace(/\D/g, '');
-      const phoneMatch = cleanPhoneDigits && (phoneDigits === cleanPhoneDigits || phoneDigits.endsWith(cleanPhoneDigits) || cleanPhoneDigits.endsWith(phoneDigits));
-
-      if (!emailMatch && !phoneMatch) {
-        admission = null;
-      }
-    }
-
-    if (!admission) {
+    if (matchingAdmissions.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No matching application found. Please verify your Application Number (e.g. CKP-2026-48192) and registered Phone or Email.'
+        message: `No admission record found for mobile number ${standardPhone || rawInput}. Please verify the 10-digit number or submit a new admission application.`
       });
     }
+
+    // De-duplicate matching admissions
+    const uniqueMap = new Map();
+    matchingAdmissions.forEach(adm => {
+      const key = adm.applicationNumber || adm._id || adm.id;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, formatAdmissionForParent(adm));
+      }
+    });
+
+    const uniqueList = Array.from(uniqueMap.values());
 
     return res.status(200).json({
       success: true,
-      data: {
-        applicationNumber: admission.applicationNumber,
-        childName: admission.childName,
-        age: admission.age,
-        program: admission.program,
-        timing: admission.timing,
-        location: admission.location || admission.address,
-        academicYear: admission.academicYear,
-        status: admission.status,
-        submissionDate: admission.createdAt,
-        updatedAt: admission.updatedAt,
-        statusHistory: admission.statusHistory || []
-      }
+      message: 'Admission details retrieved successfully',
+      data: uniqueList[0],
+      applications: uniqueList,
+      totalFound: uniqueList.length
     });
   } catch (error) {
-    console.error('Track error:', error);
+    console.error('Track admission error:', error);
     return res.status(500).json({ success: false, message: 'Server error tracking admission', error: error.message });
   }
 };
@@ -301,9 +441,19 @@ exports.getAdmissions = async (req, res) => {
         limit: parseInt(limit)
       });
 
+      const seen = new Set();
+      const uniqueData = [];
+      (result.data || []).forEach(item => {
+        const key = item.applicationNumber || item.guardianPhone || item.id || item._id;
+        if (!key || !seen.has(key)) {
+          if (key) seen.add(key);
+          uniqueData.push(item);
+        }
+      });
+
       return res.status(200).json({
         success: true,
-        data: result.data,
+        data: uniqueData,
         pagination: {
           total: result.total,
           page: result.page,
@@ -513,6 +663,15 @@ exports.exportCSV = async (req, res) => {
     if (!admissions || admissions.length === 0) {
       admissions = storageService.getAllAdmissions({ status, program, limit: 1000 }).data;
     }
+
+    const seenExport = new Set();
+    admissions = (admissions || []).filter(item => {
+      const key = item.applicationNumber || item.guardianPhone || item.id || item._id;
+      if (!key) return true;
+      if (seenExport.has(key)) return false;
+      seenExport.add(key);
+      return true;
+    });
 
     const headers = [
       'Application Number',

@@ -84,7 +84,17 @@ const Dashboard = () => {
           enquiriesNew: enqNewRes.data.pagination?.total || 0
         });
 
-        setRecentAdmissions(recentRes.data.data || []);
+        const rawRecent = recentRes.data.data || [];
+        const seenRecent = new Set();
+        const uniqueRecent = [];
+        rawRecent.forEach(item => {
+          const key = item.applicationNumber || item._id || item.id;
+          if (!key || !seenRecent.has(key)) {
+            if (key) seenRecent.add(key);
+            uniqueRecent.push(item);
+          }
+        });
+        setRecentAdmissions(uniqueRecent);
       } catch (err) {
         console.error('Failed to load dashboard metrics:', err);
       } finally {

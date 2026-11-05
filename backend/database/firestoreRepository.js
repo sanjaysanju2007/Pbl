@@ -105,13 +105,31 @@ class FirestoreRepository {
     if (!col || !id) return null;
     const stringId = String(id).trim();
 
-    // 1. Direct doc lookup
+    // 1. Direct doc lookup (Supports phone number or custom ID as doc key)
     const doc = await col.doc(stringId).get();
     if (doc.exists) {
       return this._normalizeDoc(doc);
     }
 
-    // 2. Lookup by applicationNumber if applicable
+    // 2. Direct lookup by guardianPhone / phone number field
+    const phoneDigits = stringId.replace(/\D/g, '');
+    if (phoneDigits.length >= 10) {
+      const last10 = phoneDigits.slice(-10);
+      try {
+        const byPhone = await col.where('guardianPhone', '==', last10).limit(1).get();
+        if (!byPhone.empty) {
+          return this._normalizeDoc(byPhone.docs[0]);
+        }
+        const byMobile = await col.where('mobile', '==', last10).limit(1).get();
+        if (!byMobile.empty) {
+          return this._normalizeDoc(byMobile.docs[0]);
+        }
+      } catch (err) {
+        // non-blocking
+      }
+    }
+
+    // 3. Lookup by applicationNumber if applicable
     const byAppNo = await col.where('applicationNumber', '==', stringId).limit(1).get();
     if (!byAppNo.empty) {
       return this._normalizeDoc(byAppNo.docs[0]);
@@ -221,6 +239,34 @@ class FirestoreRepository {
 
     const snapshot = await query.get();
     let items = snapshot.docs.map(doc => this._normalizeDoc(doc));
+
+    // Deduplicate items to ensure each record is represented exactly once
+    if (this.collectionName === 'admissions') {
+      const seen = new Map();
+      items.forEach(item => {
+        const key = item.applicationNumber || (item.guardianPhone ? String(item.guardianPhone).replace(/\D/g, '').slice(-10) : null) || item.id || item._id;
+        if (!key) return;
+        if (!seen.has(key)) {
+          seen.set(key, item);
+        } else {
+          const existing = seen.get(key);
+          const isItemPreferred = (item.id && item.id.startsWith('CKP-')) || (new Date(item.updatedAt || item.createdAt || 0) > new Date(existing.updatedAt || existing.createdAt || 0));
+          if (isItemPreferred) {
+            seen.set(key, { ...existing, ...item });
+          }
+        }
+      });
+      items = Array.from(seen.values());
+    } else {
+      const seen = new Set();
+      items = items.filter(item => {
+        const key = item.id || item._id;
+        if (!key) return true;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
 
     // In-memory text search across specified or standard fields
     if (search && search.trim()) {

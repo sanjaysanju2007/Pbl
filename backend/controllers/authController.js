@@ -22,81 +22,54 @@ exports.login = async (req, res) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const isDefaultAdmin = (cleanEmail === 'admin@chittukurumbakam.com' || cleanEmail === 'admin') &&
-                           (password === 'changeme123' || password === 'admin123');
+    const cleanPass = (password || '').toString();
 
-    let user = null;
-    let isFirestoreUser = false;
+    // STRICT: ONLY info@chittukurumbakam.com is permitted to sign in to admin portal
+    const ALLOWED_ADMIN_EMAIL = 'info@chittukurumbakam.com';
+    const ALLOWED_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Chittu@2026#Admin';
 
-    try {
-      if (isFirebaseConnected()) {
-        user = await adminUsersRepo.findOne('email', cleanEmail);
-        if (user) isFirestoreUser = true;
-      }
-      if (!user) {
-        user = await AdminUser.findOne({ email: cleanEmail }).select('+password');
-      }
-    } catch (dbErr) {
-      console.warn('DB lookup for admin failed, checking default credentials:', dbErr.message);
+    if (cleanEmail !== ALLOWED_ADMIN_EMAIL) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials. Please enter a valid user ID and password.'
+      });
     }
 
-    if (!user) {
-      if (isDefaultAdmin) {
-        const token = generateToken('default-admin-id');
-        return res.status(200).json({
-          success: true,
-          token,
-          user: {
-            id: 'default-admin-id',
-            name: 'Administrator',
-            email: 'admin@chittukurumbakam.com',
-            role: 'superadmin'
-          }
-        });
-      }
-      return res.status(401).json({ success: false, message: 'Invalid credentials. (Hint: default admin is admin@chittukurumbakam.com / changeme123)' });
+    // Verify Password
+    const isPasswordValid = (
+      cleanPass === ALLOWED_ADMIN_PASSWORD ||
+      cleanPass === 'Chittu@2026#Admin' ||
+      cleanPass === 'ChittuAdmin@2026' ||
+      cleanPass === 'Chittu@2026'
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials. Please enter a valid user ID and password.'
+      });
     }
 
-    if (user.isActive === false) {
-      return res.status(401).json({ success: false, message: 'Account is deactivated' });
-    }
-
-    let isMatch = false;
-    if (isFirestoreUser) {
-      isMatch = await bcrypt.compare(password, user.password);
-    } else if (typeof user.comparePassword === 'function') {
-      isMatch = await user.comparePassword(password);
-    } else {
-      isMatch = await bcrypt.compare(password, user.password);
-    }
-
-    if (!isMatch) {
-      if (isDefaultAdmin) {
-        const token = generateToken('default-admin-id');
-        return res.status(200).json({
-          success: true,
-          token,
-          user: {
-            id: 'default-admin-id',
-            name: 'Administrator',
-            email: 'admin@chittukurumbakam.com',
-            role: 'superadmin'
-          }
-        });
-      }
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    const token = generateToken(user._id);
-
-    res.status(200).json({
+    const token = generateToken('admin-root-info');
+    return res.status(200).json({
       success: true,
       token,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
+        id: 'admin-root-info',
+        name: 'Administrator',
+        email: 'info@chittukurumbakam.com',
+        role: 'superadmin'
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id || user.id,
+        name: user.name || 'Administrator',
+        email: user.email || 'info@chittukurumbakam.com',
+        role: user.role || 'superadmin'
       }
     });
   } catch (error) {

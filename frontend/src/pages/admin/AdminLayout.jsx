@@ -79,9 +79,12 @@ const AdminLayout = () => {
       <aside className={`admin__sidebar ${sidebarOpen ? 'admin__sidebar--open' : ''}`}>
         <div className="admin__sidebar-header">
           <div className="admin__brand-wrap">
-            <span className="admin__brand-icon">
-              <FiSun style={{ color: '#f59e0b', fontSize: '1.4rem' }} />
-            </span>
+            <img
+              src="/logo.jpg"
+              alt="Chittu Kurumbagam"
+              className="admin__brand-logo"
+              style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover', border: '1.5px solid rgba(255,255,255,0.2)' }}
+            />
             <div className="admin__brand-text">
               <strong>Chittukurumbakam</strong>
               <small>Admin Portal</small>
@@ -158,7 +161,7 @@ const AdminLayout = () => {
               <FiMenu size={22} />
             </button>
             <div className="admin__topbar-brand-mobile">
-              <span className="admin__brand-sun"><FiSun /></span>
+              <img src="/logo.jpg" alt="Chittu Kurumbagam" style={{ width: '28px', height: '28px', borderRadius: '7px', objectFit: 'cover' }} />
               <span>CK</span>
             </div>
             <h1 className="admin__topbar-title">{pageTitle}</h1>

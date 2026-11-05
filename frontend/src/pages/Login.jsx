@@ -15,11 +15,17 @@ import {
   FiHeart,
   FiHelpCircle,
   FiUser,
+  FiUsers,
   FiStar,
   FiClock,
   FiXCircle,
+  FiX,
   FiClipboard,
-  FiInbox
+  FiInbox,
+  FiPrinter,
+  FiBookOpen,
+  FiMapPin,
+  FiCalendar
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import API from '../api';
@@ -39,14 +45,22 @@ const Login = () => {
   const [adminError, setAdminError] = useState('');
 
   // Parent Tracking State
-  const [appNumber, setAppNumber] = useState('');
   const [parentContact, setParentContact] = useState('');
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackingError, setTrackingError] = useState('');
   const [trackResult, setTrackResult] = useState(null);
+  const [trackResultsList, setTrackResultsList] = useState([]);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Forgot password modal
   const [showForgotModal, setShowForgotModal] = useState(false);
+
+  // Handle phone input changes (digits only, max 10 digits)
+  const handlePhoneInputChange = (e) => {
+    const numericOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setParentContact(numericOnly);
+    if (trackingError) setTrackingError('');
+  };
 
   // Handle Admin / Staff Sign In
   const handleAdminSubmit = async (e) => {
@@ -67,34 +81,64 @@ const Login = () => {
     }
   };
 
-  // Handle Parent Application Tracking
+  // Handle Parent Application Tracking by Phone Number
   const handleParentTrack = async (e) => {
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     setTrackingError('');
     setTrackResult(null);
+    setTrackResultsList([]);
+    setShowDetailsModal(false);
 
-    if (!appNumber.trim() || !parentContact.trim()) {
-      setTrackingError('Please enter both Application Number and registered Phone or Email.');
+    const rawContact = (parentContact || '').toString().trim();
+    const cleanDigits = rawContact.replace(/\D/g, '');
+    const standardPhone = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
+
+    if (!cleanDigits) {
+      setTrackingError('Please enter your 10-digit registered mobile number.');
+      return;
+    }
+
+    if (cleanDigits.length !== 10 || !/^[6-9]\d{9}$/.test(standardPhone)) {
+      setTrackingError('Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9).');
       return;
     }
 
     setTrackingLoading(true);
     try {
       const res = await API.post('/admissions/track', {
-        applicationNumber: appNumber.trim().toUpperCase(),
-        contact: parentContact.trim()
+        phone: standardPhone,
+        mobile: standardPhone,
+        contact: standardPhone
       });
 
-      if (res.data.success) {
-        setTrackResult(res.data.data);
+      console.log('Admission track response:', res.data);
+
+      if (res.data?.success) {
+        const apps = res.data.applications || (Array.isArray(res.data.data) ? res.data.data : [res.data.data]);
+        if (apps && apps.length > 0) {
+          setTrackResultsList(apps);
+          setTrackResult(apps[0]);
+          setShowDetailsModal(true); // Open details popup immediately on valid record!
+        } else if (res.data.data) {
+          setTrackResultsList([res.data.data]);
+          setTrackResult(res.data.data);
+          setShowDetailsModal(true);
+        } else {
+          setTrackingError(`No admission record found for mobile number ${standardPhone}. Please verify the number or submit an admission application.`);
+        }
       } else {
-        setTrackingError(res.data.message || 'No application record found.');
+        setTrackingError(res.data?.message || `No admission record found for mobile number ${standardPhone}.`);
       }
     } catch (err) {
-      setTrackingError(
-        err.response?.data?.message ||
-        'Application not found. Please double check your Application Number (e.g. CKP-2026-XXXXX).'
-      );
+      console.error('Track admission error:', err);
+      const serverMsg = err.response?.data?.message;
+      if (serverMsg) {
+        setTrackingError(serverMsg);
+      } else if (err.message && (err.message.includes('Network Error') || err.code === 'ERR_NETWORK')) {
+        setTrackingError('Cannot connect to server. Please verify your backend server is running (cd Pbl/backend && npm start).');
+      } else {
+        setTrackingError(`No admission record found for mobile number ${standardPhone}. Please verify the 10-digit number or submit an admission application.`);
+      }
     } finally {
       setTrackingLoading(false);
     }
@@ -215,7 +259,7 @@ const Login = () => {
                 >
                   <div className="login-header">
                     <h3>Track Your Child's Admission</h3>
-                    <p>Enter your Application Reference Number and registered phone or email to view real-time status.</p>
+                    <p>Enter your registered 10-digit mobile number to view real-time application status.</p>
                   </div>
 
                   {trackingError && (
@@ -227,46 +271,33 @@ const Login = () => {
                   <form onSubmit={handleParentTrack} className="login-form">
                     <div className="login-form__group">
                       <label className="login-form__label">
-                        Application Reference Number <span className="login-required">*</span>
-                      </label>
-                      <div className="login-input-wrap">
-                        <FiSearch className="login-input-icon" />
-                        <input
-                          type="text"
-                          required
-                          value={appNumber}
-                          onChange={(e) => setAppNumber(e.target.value)}
-                          placeholder="e.g. CKP-2026-48192"
-                          className="login-input"
-                          style={{ textTransform: 'uppercase' }}
-                        />
-                      </div>
-                      <span className="login-field-hint">Sent via email and SMS on submission.</span>
-                    </div>
-
-                    <div className="login-form__group">
-                      <label className="login-form__label">
-                        Registered Mobile Number or Email <span className="login-required">*</span>
+                        Registered Mobile Number <span className="login-required">*</span>
                       </label>
                       <div className="login-input-wrap">
                         <FiPhone className="login-input-icon" />
                         <input
-                          type="text"
+                          type="tel"
                           required
                           value={parentContact}
-                          onChange={(e) => setParentContact(e.target.value)}
-                          placeholder="e.g. 9952285838 or parent@example.com"
+                          onChange={handlePhoneInputChange}
+                          maxLength={10}
+                          placeholder="Enter registered mobile number"
                           className="login-input"
+                          autoFocus
                         />
                       </div>
+                      <span className="login-field-hint">
+                        Enter the 10-digit phone number used when submitting the admission application.
+                      </span>
                     </div>
 
                     <button
                       type="submit"
                       disabled={trackingLoading}
+                      onClick={handleParentTrack}
                       className="btn btn--primary login-submit-btn"
                     >
-                      {trackingLoading ? 'Checking Application...' : 'Track Application Status'}
+                      {trackingLoading ? 'Checking Application Status...' : 'Track Admission Status'}
                       <FiArrowRight />
                     </button>
                   </form>
@@ -280,9 +311,33 @@ const Login = () => {
                         exit={{ opacity: 0, y: 10 }}
                         className="login-track-card"
                       >
+                        {/* Multiple Children Selector if parent submitted for > 1 child */}
+                        {trackResultsList.length > 1 && (
+                          <div style={{ marginBottom: '16px', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '0.82rem', fontWeight: '700', color: '#64748b', display: 'block', marginBottom: '8px' }}>
+                              Found {trackResultsList.length} applications under this mobile number:
+                            </span>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              {trackResultsList.map((app, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setTrackResult(app)}
+                                  className={`btn btn--sm ${trackResult?.applicationNumber === app.applicationNumber || trackResult?.id === app.id ? 'btn--primary' : 'btn--outline'}`}
+                                  style={{ borderRadius: '20px', padding: '5px 12px', fontSize: '0.8rem' }}
+                                >
+                                  👶 {app.childName} ({app.program})
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="login-track-card__header">
                           <div>
-                            <span className="login-track-card__id">{trackResult.applicationNumber}</span>
+                            <span className="login-track-card__id" style={{ background: "#f0fdf4", color: "#16a34a", borderColor: "#bbf7d0", fontWeight: "700" }}>
+                              📱 {trackResult.guardianPhone || parentContact}
+                            </span>
                             <h4 className="login-track-card__name">{trackResult.childName}</h4>
                           </div>
                           <span className={`login-badge ${getStatusBadgeClass(trackResult.status)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
@@ -296,12 +351,24 @@ const Login = () => {
                             <strong>{trackResult.program}</strong>
                           </div>
                           <div className="login-track-card__item">
+                            <span>Timing</span>
+                            <strong>{trackResult.timing || '9:00-12:30'}</strong>
+                          </div>
+                          <div className="login-track-card__item">
+                            <span>Parent / Guardian</span>
+                            <strong>{trackResult.parentName || 'Parent'}</strong>
+                          </div>
+                          <div className="login-track-card__item">
                             <span>Academic Year</span>
-                            <strong>{trackResult.academicYear}</strong>
+                            <strong>{trackResult.academicYear || '2026-2027'}</strong>
                           </div>
                           <div className="login-track-card__item">
                             <span>Submitted On</span>
-                            <strong>{new Date(trackResult.submissionDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                            <strong>
+                              {trackResult.submissionDate || trackResult.createdAt
+                                ? new Date(trackResult.submissionDate || trackResult.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                : 'Recent'}
+                            </strong>
                           </div>
                         </div>
 
@@ -325,7 +392,14 @@ const Login = () => {
                           </div>
                         )}
 
-                        <div className="login-track-card__actions">
+                        <div className="login-track-card__actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => setShowDetailsModal(true)}
+                            className="btn btn--primary btn--sm"
+                          >
+                            <FiSearch /> View Admission Popup Details
+                          </button>
                           <Link to="/contact" className="btn btn--outline btn--sm">
                             Need Assistance? Contact School
                           </Link>
@@ -374,7 +448,7 @@ const Login = () => {
                           required
                           value={adminEmail}
                           onChange={(e) => setAdminEmail(e.target.value)}
-                          placeholder="admin@chittukurumbakam.com"
+                          placeholder="Enter staff email address"
                           className="login-input"
                           autoComplete="email"
                         />
@@ -401,7 +475,7 @@ const Login = () => {
                           required
                           value={adminPassword}
                           onChange={(e) => setAdminPassword(e.target.value)}
-                          placeholder="••••••••••••"
+                          placeholder="Enter your password"
                           className="login-input"
                           autoComplete="current-password"
                         />
@@ -436,6 +510,152 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* PARENT ADMISSION DETAILS POPUP MODAL */}
+      <AnimatePresence>
+        {showDetailsModal && trackResult && (
+          <div className="login-modal-backdrop" onClick={() => setShowDetailsModal(false)}>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.25 }}
+              className="parent-details-modal"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="parent-details-modal__head">
+                <div className="parent-details-modal__badge">
+                  <FiCheckCircle /> Admission Record Verified
+                </div>
+                <button
+                  type="button"
+                  className="parent-details-modal__close-btn"
+                  onClick={() => setShowDetailsModal(false)}
+                  aria-label="Close modal"
+                >
+                  <FiX size={20} />
+                </button>
+              </div>
+
+              <div className="parent-details-modal__title-box">
+                <div className="parent-details-modal__avatar">
+                  👶
+                </div>
+                <div>
+                  <h2 className="parent-details-modal__child-name">{trackResult.childName}</h2>
+                  <div className="parent-details-modal__meta">
+                    <span className={`login-badge ${getStatusBadgeClass(trackResult.status)}`}>
+                      {getStatusBadgeContent(trackResult.status)}
+                    </span>
+                    <span className="parent-details-modal__phone-tag">
+                      <FiPhone size={13} /> {trackResult.guardianPhone || parentContact}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Multiple Children Selector inside modal if > 1 child */}
+              {trackResultsList.length > 1 && (
+                <div className="parent-details-modal__selector">
+                  <span>Found {trackResultsList.length} applications under this mobile number:</span>
+                  <div className="parent-details-modal__selector-btns">
+                    {trackResultsList.map((app, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setTrackResult(app)}
+                        className={`btn btn--sm ${trackResult.applicationNumber === app.applicationNumber || trackResult.id === app.id ? 'btn--primary' : 'btn--outline'}`}
+                        style={{ borderRadius: '20px', padding: '5px 12px', fontSize: '0.8rem' }}
+                      >
+                        👶 {app.childName} ({app.program})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="parent-details-modal__body">
+                <h4 className="parent-details-modal__section-heading">Child & Parent Information</h4>
+                <div className="parent-details-grid">
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiUser /> Kid Name</span>
+                    <strong className="parent-details-val">{trackResult.childName}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiCalendar /> DOB & Age</span>
+                    <strong className="parent-details-val">
+                      {trackResult.dateOfBirth || 'N/A'} {trackResult.age ? `(${trackResult.age})` : ''}
+                    </strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiUsers /> Parents Name</span>
+                    <strong className="parent-details-val">{trackResult.parentName || 'Parent'}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiPhone /> Registered Mobile</span>
+                    <strong className="parent-details-val">{trackResult.guardianPhone || parentContact}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiBookOpen /> Category Applying For</span>
+                    <strong className="parent-details-val">{trackResult.program || 'Playgroup'}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiClock /> Preferred Timing</span>
+                    <strong className="parent-details-val">{trackResult.timing || '9:00-12:30'}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiMapPin /> Location</span>
+                    <strong className="parent-details-val">{trackResult.location || 'N/A'}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label"><FiMail /> Mail ID</span>
+                    <strong className="parent-details-val">{trackResult.guardianEmail || 'N/A'}</strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label">Previous School / Daycare</span>
+                    <strong className="parent-details-val">
+                      {trackResult.hasPreviousSchool === 'Yes'
+                        ? (trackResult.previousSchoolName || trackResult.previousSchool || 'Yes')
+                        : (trackResult.previousSchool && trackResult.previousSchool !== 'None' ? trackResult.previousSchool : 'No')}
+                    </strong>
+                  </div>
+                  <div className="parent-details-item">
+                    <span className="parent-details-label">Submission Date</span>
+                    <strong className="parent-details-val">
+                      {trackResult.submissionDate || trackResult.createdAt
+                        ? new Date(trackResult.submissionDate || trackResult.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                        : 'Recent'}
+                    </strong>
+                  </div>
+                  {trackResult.additionalComments && (
+                    <div className="parent-details-item parent-details-item--full">
+                      <span className="parent-details-label">Additional Comments / Notes</span>
+                      <strong className="parent-details-val">{trackResult.additionalComments}</strong>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="parent-details-modal__footer">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="btn btn--outline btn--sm"
+                >
+                  <FiPrinter /> Print / Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDetailsModal(false)}
+                  className="btn btn--primary btn--sm"
+                >
+                  Done
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Forgot Password Assistance Modal */}
       <AnimatePresence>

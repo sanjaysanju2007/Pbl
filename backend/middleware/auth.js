@@ -16,12 +16,12 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.id === 'default-admin-id') {
+    if (decoded.id === 'default-admin-id' || decoded.id === 'admin-root-info') {
       req.user = {
-        _id: 'default-admin-id',
-        id: 'default-admin-id',
+        _id: 'admin-root-info',
+        id: 'admin-root-info',
         name: 'Administrator',
-        email: 'admin@chittukurumbakam.com',
+        email: 'info@chittukurumbakam.com',
         role: 'superadmin',
         isActive: true
       };
@@ -46,7 +46,7 @@ const protect = async (req, res, next) => {
           _id: decoded.id,
           id: decoded.id,
           name: 'Administrator',
-          email: 'admin@chittukurumbakam.com',
+          email: 'info@chittukurumbakam.com',
           role: 'superadmin',
           isActive: true
         };
